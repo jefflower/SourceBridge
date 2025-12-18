@@ -6,6 +6,7 @@
 ## 🛠️ 任务详情
 
 ### 1. 引入 ORM 依赖 (SeaORM)
+- Start Time: 2025-12-18 22:49
 - [ ] **修改 `src-tauri/Cargo.toml`**：
     - 引入 `sea-orm` (features: `sqlx-sqlite`, `runtime-tokio-rustls`, `macros`).
     - 引入 `sea-orm-migration` 用于管理 schema 变更.
