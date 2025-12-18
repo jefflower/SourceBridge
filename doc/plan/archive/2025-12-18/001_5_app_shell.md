@@ -6,6 +6,7 @@
 ## 🛠️ 任务详情
 
 ### 1. 后端逻辑 (Rust)
+- Start Time: 2025-12-18 23:34
 - [ ] **Settings 模块**：
     - 定义 `Settings` Entity (Key-Value 存储)。
     - 实现 `get_setting(key)`, `set_setting(key, value)` 命令。
