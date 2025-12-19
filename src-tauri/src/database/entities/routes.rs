@@ -14,6 +14,7 @@ pub struct Model {
     pub last_sync_status: Option<String>,
     pub last_sync_time: Option<DateTime>,
     pub updated_at: DateTime,
+    pub mappings: Option<String>, // JSON stored as string
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

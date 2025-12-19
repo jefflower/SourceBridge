@@ -24,7 +24,17 @@ pub fn run() {
             commands::repo::add_repository,
             commands::repo::update_repository,
             commands::repo::delete_repository,
-            commands::repo::list_repo_tree
+            commands::repo::list_repo_tree,
+            commands::route::create_route_group,
+            commands::route::delete_route_group,
+            commands::route::update_route_group,
+            commands::route::create_route,
+            commands::route::update_route,
+            commands::route::update_route_mappings,
+            commands::route::delete_route,
+            commands::route::list_route_tree,
+            commands::route::get_route_details,
+            commands::route::test_route_mapping
         ])
         .setup(|app| {
             let app_handle = app.handle();

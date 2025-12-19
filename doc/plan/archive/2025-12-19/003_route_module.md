@@ -6,6 +6,7 @@
 ## 🛠️ 任务详情
 
 ### 1. 后端逻辑 (Rust)
+- Start Time: 2025-12-19 04:28
 - [ ] **Command 实现**：在 `src-tauri/src/commands/route.rs` 中实现：
     - `create_route_group(...)`
     - `create_route(...)`: 关联 `source_repo_id` 和 `target_repo_id`。

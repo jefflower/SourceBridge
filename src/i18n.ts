@@ -65,6 +65,53 @@ const messages = {
             }
         },
         no_repos: 'Select a repository to view details or add a new one.'
+    },
+    route: {
+        group: {
+            new: 'New Route Group',
+            name: 'Group Name',
+            parent: 'Parent Group',
+        },
+        add: 'Add Route',
+        context: {
+            new_subgroup: 'New Sub-Group',
+            add_route: 'Add Route Here',
+            rename: 'Rename',
+            delete: 'Delete'
+        },
+        form: {
+            name: {
+                label: 'Name',
+                placeholder: 'Route Name'
+            },
+            source: {
+                label: 'Source Repo'
+            },
+            target: {
+                label: 'Target Repo'
+            },
+            group: {
+                label: 'Group'
+            }
+        },
+        mapping: {
+            source: 'Source Path (Glob)',
+            target: 'Target Path',
+            mode: 'Mode',
+            actions: 'Actions',
+            add: 'Add Rule',
+            test: 'Test Match',
+            test_placeholder: 'Test Path (e.g. src/main.ts)',
+            modes: {
+                copy: 'Copy',
+                ignore: 'Ignore'
+            }
+        },
+        test: {
+            match: 'Matches Rule #{index}: {target}',
+            no_match: 'No Match'
+        },
+        no_routes: 'Select a route to configure mappings.'
     }
   },
   zh: {
@@ -131,6 +178,53 @@ const messages = {
             }
         },
         no_repos: '请选择一个仓库查看详情，或添加新仓库。'
+    },
+    route: {
+        group: {
+            new: '新建同步分组',
+            name: '分组名称',
+            parent: '父级分组',
+        },
+        add: '添加同步路线',
+        context: {
+            new_subgroup: '新建子分组',
+            add_route: '在此添加路线',
+            rename: '重命名',
+            delete: '删除'
+        },
+        form: {
+            name: {
+                label: '名称',
+                placeholder: '路线名称'
+            },
+            source: {
+                label: '源仓库'
+            },
+            target: {
+                label: '目标仓库'
+            },
+            group: {
+                label: '分组'
+            }
+        },
+        mapping: {
+            source: '源路径 (Glob)',
+            target: '目标路径',
+            mode: '模式',
+            actions: '操作',
+            add: '添加规则',
+            test: '测试匹配',
+            test_placeholder: '测试路径 (如 src/main.ts)',
+            modes: {
+                copy: '复制',
+                ignore: '忽略'
+            }
+        },
+        test: {
+            match: '匹配规则 #{index}: {target}',
+            no_match: '无匹配'
+        },
+        no_routes: '请选择一条路线配置映射规则。'
     }
   },
 };

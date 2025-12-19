@@ -100,14 +100,14 @@ const handleCreate = async (payload: any) => {
         if (payload.type === 'group') {
             await invoke('create_repo_group', {
                 name: payload.data.name,
-                parentId: payload.parentId
+                parent_id: payload.parentId
             });
         } else {
              await invoke('add_repository', {
                 name: payload.data.name,
                 path: payload.data.path,
                 url: null,
-                groupId: payload.parentId
+                group_id: payload.parentId
             });
         }
         await loadTree();
@@ -124,7 +124,7 @@ const updateRepo = async (repo: any) => {
             name: repo.name,
             path: repo.path,
             url: null, // TODO
-            groupId: repo.group_id
+            group_id: repo.group_id
         });
         await loadTree();
         // re-select?
