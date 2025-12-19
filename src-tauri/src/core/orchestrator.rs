@@ -70,18 +70,23 @@ impl StepExecutor for GitExecutor {
     }
 }
 
-pub struct SyncExecutor;
-impl StepExecutor for SyncExecutor {
-    fn execute(&self, _params: &str) -> Result<String> {
-        // TODO: Implement Sync logic using Route module
-        Ok("Sync operation executed (Mock)".to_string())
-    }
+use crate::core::sync::SyncEngine;
+use crate::database::manager::DatabaseManager;
+
+pub struct SyncExecutor<'a> {
+    pub db_manager: &'a DatabaseManager
 }
+
+// We need async trait or execute async.
+// Since StepExecutor trait is synchronous `execute`, we can't await inside easily without block_on.
+// Ideally refactor StepExecutor to async trait.
+// For now, let's keep it simple and maybe refactor TaskRunner to handle async steps directly match.
 
 pub struct TaskRunner;
 
 impl TaskRunner {
-    pub async fn run(task_id: String, db: &DatabaseConnection) -> Result<()> {
+    pub async fn run(task_id: String, db_manager: &DatabaseManager) -> Result<()> {
+        let db = &db_manager.connection;
         // 1. Fetch Task and Steps
         let task = tasks::Entity::find_by_id(&task_id).one(db).await?
             .ok_or(anyhow::anyhow!("Task not found"))?;
@@ -106,19 +111,25 @@ impl TaskRunner {
         // 3. Execute Steps
         let mut success = true;
         for step in steps {
-            let executor: Box<dyn StepExecutor> = match step.action_type.as_str() {
-                "script" => Box::new(ScriptExecutor),
-                "git" => Box::new(GitExecutor),
-                "sync" => Box::new(SyncExecutor),
+            let params = step.params.unwrap_or_default();
+            let result = match step.action_type.as_str() {
+                "script" => ScriptExecutor.execute(&params),
+                "git" => GitExecutor.execute(&params),
+                "sync" => {
+                    // Sync needs async execution and DB access
+                    // We handle it specially here since we haven't fully refactored to async trait
+                    let p: SyncParams = serde_json::from_str(&params)?;
+                    match SyncEngine::execute_sync(&p.route_id, db_manager).await {
+                        Ok(res) => Ok(res.logs),
+                        Err(e) => Err(e),
+                    }
+                },
                 _ => {
-                    full_log.push_str(&format!("Unknown step type: {}\n", step.action_type));
-                    success = false;
-                    break;
+                    Err(anyhow::anyhow!("Unknown step type: {}", step.action_type))
                 }
             };
 
-            let params = step.params.unwrap_or_default();
-            match executor.execute(&params) {
+            match result {
                 Ok(output) => {
                     full_log.push_str(&format!("Step {} Success:\n{}\n", step.step_order, output));
                 },

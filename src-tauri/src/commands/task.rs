@@ -1,6 +1,6 @@
-use crate::database::entities::{tasks, task_steps};
+use crate::database::entities::{tasks, task_steps, task_execution_logs};
 use crate::database::manager::DatabaseManager;
-use sea_orm::{ActiveModelTrait, EntityTrait, Set};
+use sea_orm::{ActiveModelTrait, EntityTrait, Set, QueryFilter, ColumnTrait, QueryOrder};
 use tauri::{State};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
@@ -53,8 +53,7 @@ pub async fn create_task(task: TaskDTO, state: State<'_, DatabaseManager>) -> Re
 
 #[tauri::command]
 pub async fn run_task_now(id: String, state: State<'_, DatabaseManager>) -> Result<(), String> {
-    let db = &state.connection;
-    TaskRunner::run(id, db).await.map_err(|e| e.to_string())?;
+    TaskRunner::run(id, &state).await.map_err(|e| e.to_string())?;
     Ok(())
 }
 
@@ -70,4 +69,16 @@ pub async fn delete_task(id: String, state: State<'_, DatabaseManager>) -> Resul
     let db = &state.connection;
     tasks::Entity::delete_by_id(id).exec(db).await.map_err(|e| e.to_string())?;
     Ok(())
+}
+
+#[tauri::command]
+pub async fn get_task_logs(task_id: String, state: State<'_, DatabaseManager>) -> Result<Vec<task_execution_logs::Model>, String> {
+    let db = &state.connection;
+    let logs = task_execution_logs::Entity::find()
+        .filter(task_execution_logs::Column::TaskId.eq(task_id))
+        .order_by_desc(task_execution_logs::Column::StartTime)
+        .all(db)
+        .await
+        .map_err(|e| e.to_string())?;
+    Ok(logs)
 }

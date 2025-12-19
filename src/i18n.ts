@@ -128,6 +128,17 @@ const messages = {
                 unchanged: 'Unchanged'
             }
         },
+        tray: {
+            show: 'Show Window',
+            quit: 'Quit'
+        },
+        log: {
+            title: 'Execution Logs',
+            start: 'Start',
+            end: 'End',
+            status: 'Status',
+            output: 'Output'
+        },
     }
   },
   zh: {
@@ -256,6 +267,17 @@ const messages = {
                 deleted: '删除',
                 unchanged: '未变'
             }
+        },
+        tray: {
+            show: '显示窗口',
+            quit: '退出'
+        },
+        log: {
+            title: '执行日志',
+            start: '开始时间',
+            end: '结束时间',
+            status: '状态',
+            output: '输出'
         },
     }
   },

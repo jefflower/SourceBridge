@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+verification/*.png
+verification/*.png
+src-tauri/target/
