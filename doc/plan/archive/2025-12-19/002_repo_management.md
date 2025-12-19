@@ -6,6 +6,7 @@
 ## 🛠️ 任务详情
 
 ### 1. 后端逻辑 (Rust)
+- Start Time: 2025-12-19 01:15
 - [ ] **Command 实现**：在 `src-tauri/src/commands/repo.rs` 中实现：
     - `create_repo_group(name, parent_id)`
     - `delete_repo_group(id)`: 需处理级联删除逻辑或拒绝非空删除。

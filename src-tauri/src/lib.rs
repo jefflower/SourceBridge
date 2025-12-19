@@ -17,7 +17,14 @@ pub fn run() {
             greet,
             commands::settings::get_setting,
             commands::settings::set_setting,
-            commands::settings::get_all_settings
+            commands::settings::get_all_settings,
+            commands::repo::create_repo_group,
+            commands::repo::delete_repo_group,
+            commands::repo::update_repo_group,
+            commands::repo::add_repository,
+            commands::repo::update_repository,
+            commands::repo::delete_repository,
+            commands::repo::list_repo_tree
         ])
         .setup(|app| {
             let app_handle = app.handle();
