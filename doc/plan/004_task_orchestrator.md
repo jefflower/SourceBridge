@@ -6,6 +6,7 @@
 ## 🛠️ 任务详情
 
 ### 1. 后端逻辑 (Rust)
+- Start Time: 2025-12-19 05:45
 - [ ] **Orchestrator 核心**：
     - 定义 `TaskPipeline` (Vec<Step>)。
     - 实现 `StepExecutor` trait，确保每种 Step (Script/Git/Sync) 都有统一的 `execute()` 方法。
