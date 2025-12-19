@@ -111,7 +111,23 @@ const messages = {
             match: 'Matches Rule #{index}: {target}',
             no_match: 'No Match'
         },
-        no_routes: 'Select a route to configure mappings.'
+        no_routes: 'Select a route to configure mappings.',
+        diff: {
+            loading: 'Scanning files...',
+            no_changes: 'No changes detected.',
+            view: {
+                inline: 'Inline View',
+                split: 'Side-by-Side',
+                original: 'Original (Target)',
+                modified: 'Modified (Source)'
+            },
+            status: {
+                added: 'Added',
+                modified: 'Modified',
+                deleted: 'Deleted',
+                unchanged: 'Unchanged'
+            }
+        },
     }
   },
   zh: {
@@ -224,7 +240,23 @@ const messages = {
             match: '匹配规则 #{index}: {target}',
             no_match: '无匹配'
         },
-        no_routes: '请选择一条路线配置映射规则。'
+        no_routes: '请选择一条路线配置映射规则。',
+        diff: {
+            loading: '扫描文件中...',
+            no_changes: '未检测到变更。',
+            view: {
+                inline: '内联视图',
+                split: '并排视图',
+                original: '原始 (目标)',
+                modified: '修改后 (源)'
+            },
+            status: {
+                added: '新增',
+                modified: '修改',
+                deleted: '删除',
+                unchanged: '未变'
+            }
+        },
     }
   },
 };

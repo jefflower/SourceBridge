@@ -100,7 +100,10 @@
                 </tbody>
             </table>
         </div>
-        <div class="mt-4 flex justify-end">
+        <div class="mt-4 flex justify-end gap-2">
+             <button @click="diffModal?.open(route)" class="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-4 py-2 rounded text-sm font-medium flex items-center gap-2">
+                <Eye class="w-4 h-4" /> Preview Diff
+            </button>
              <button @click="saveMappings" class="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded text-sm font-medium">
                 {{ $t('actions.save') }}
             </button>
@@ -125,13 +128,15 @@
       </div>
 
     </div>
+    <DiffViewerModal ref="diffModal" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, onMounted, defineProps, defineEmits } from 'vue';
-import { Waypoints, Trash2 } from 'lucide-vue-next';
+import { Waypoints, Trash2, Eye } from 'lucide-vue-next';
 import { invoke } from '@tauri-apps/api/core';
+import DiffViewerModal from '../diff/DiffViewerModal.vue';
 
 const props = defineProps<{
   route: any;
@@ -150,6 +155,7 @@ const localRoute = ref({ ...props.route });
 const mappings = ref<any[]>([]);
 const testPath = ref('');
 const testResult = ref<any>(null);
+const diffModal = ref<any>(null);
 
 const loadMappings = async () => {
     // Backend returns route with mappings (JSON string) or we fetch separately?

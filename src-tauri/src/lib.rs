@@ -3,6 +3,7 @@ use tauri::Manager;
 
 mod database;
 mod commands;
+mod core;
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -34,7 +35,13 @@ pub fn run() {
             commands::route::delete_route,
             commands::route::list_route_tree,
             commands::route::get_route_details,
-            commands::route::test_route_mapping
+            commands::route::test_route_mapping,
+            commands::task::create_task,
+            commands::task::run_task_now,
+            commands::task::list_tasks,
+            commands::task::delete_task,
+            commands::diff::preview_route_diff,
+            commands::diff::get_file_diff
         ])
         .setup(|app| {
             let app_handle = app.handle();

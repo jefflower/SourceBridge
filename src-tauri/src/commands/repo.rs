@@ -199,5 +199,36 @@ fn build_tree(groups: &[repo_groups::Model], repos: &[repositories::Model], pare
     // Let's stick to `Vec<GroupNode>` for now. Repos at root might need a dummy group wrapper
     // or we change `GroupNode` to be `TreeNode` which can be Group or Repo.
 
+    // For root level (parent_id is None), also append repositories that have no group_id
+    if parent_id.is_none() {
+        // Find root repos
+        let root_repos: Vec<RepoNode> = repos.iter()
+            .filter(|r| r.group_id.is_none())
+            .map(|r| RepoNode {
+                id: r.id.clone(),
+                name: r.name.clone(),
+                path: r.local_path.clone(),
+                group_id: None,
+            })
+            .collect();
+
+        if !root_repos.is_empty() {
+            // Create a virtual "Root" group or Uncategorized
+            // But wait, the frontend RepoTree logic expects GroupNode to have children/repos.
+            // If we want root repos to appear at the same level as root groups, the return type `Vec<GroupNode>` is restrictive.
+            // However, we can hack it by adding a dummy group named "Uncategorized" (or similar)
+            // OR we can change the frontend to handle a mix.
+            // Given the signature `Result<Vec<GroupNode>, String>`, we must return GroupNodes.
+            // Let's add a virtual group for root repositories.
+
+            nodes.push(GroupNode {
+                id: "root_virtual".to_string(),
+                name: "Uncategorized".to_string(), // TODO: i18n?
+                children: vec![],
+                repos: root_repos,
+            });
+        }
+    }
+
     nodes
 }
