@@ -42,7 +42,7 @@
             :node="childGroup"
             :tree-type="treeType"
             @select="$emit('select', $event)"
-            @context-menu="$emit('context-menu', $event, $event[1])"
+            @context-menu="onChildContextMenu"
             @move="$emit('move', $event)"
         />
         <!-- Items in this group (repos or routes) -->
@@ -52,7 +52,7 @@
             :node="{ ...item, type: itemType }"
             :tree-type="treeType"
             @select="$emit('select', $event)"
-            @context-menu="$emit('context-menu', $event, $event[1])"
+            @context-menu="onChildContextMenu"
             @move="$emit('move', $event)"
         />
     </ul>
@@ -169,6 +169,10 @@ const onDragLeave = (e: DragEvent) => {
     isDragOver.value = false;
     console.log('[DragLeave] Group:', props.node.name, 'counter:', dragCounter.value);
   }
+};
+
+const onChildContextMenu = (event: MouseEvent, node: any) => {
+    emit('context-menu', event, node);
 };
 
 const onDrop = (e: DragEvent) => {

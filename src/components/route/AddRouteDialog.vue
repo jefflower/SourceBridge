@@ -1,50 +1,65 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-    <div class="bg-background border rounded-lg shadow-lg w-full max-w-md p-6 grid gap-4">
-      <div class="flex flex-col space-y-1.5 text-center sm:text-left">
-        <h2 class="text-lg font-semibold leading-none tracking-tight">
+  <Dialog :open="isOpen" @update:open="setOpen">
+    <DialogContent class="sm:max-w-[425px]">
+      <DialogHeader>
+        <DialogTitle>
             {{ mode === 'group' ? $t('route.group.new') : $t('route.add') }}
-        </h2>
-      </div>
+        </DialogTitle>
+      </DialogHeader>
 
       <div class="grid gap-4 py-4">
         <!-- Name -->
         <div class="grid grid-cols-4 items-center gap-4">
-          <label class="text-right text-sm font-medium">{{ $t('route.form.name.label') }}</label>
-          <input v-model="form.name" class="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" :placeholder="$t('route.form.name.placeholder')" />
+          <Label class="text-right">{{ $t('route.form.name.label') }}</Label>
+          <Input 
+            v-model="form.name" 
+            class="col-span-3" 
+            :placeholder="$t('route.form.name.placeholder')" 
+          />
         </div>
 
         <!-- Source/Target (Route Only) -->
-        <div v-if="mode === 'route'" class="grid grid-cols-4 items-center gap-4">
-          <label class="text-right text-sm font-medium">{{ $t('route.form.source.label') }}</label>
-          <select v-model="form.source_id" class="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-             <option :value="null">None</option>
-             <option v-for="repo in repos" :key="repo.id" :value="repo.id">{{ repo.name }}</option>
-          </select>
-        </div>
-        <div v-if="mode === 'route'" class="grid grid-cols-4 items-center gap-4">
-          <label class="text-right text-sm font-medium">{{ $t('route.form.target.label') }}</label>
-          <select v-model="form.target_id" class="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-             <option :value="null">None</option>
-             <option v-for="repo in repos" :key="repo.id" :value="repo.id">{{ repo.name }}</option>
-          </select>
-        </div>
+        <template v-if="mode === 'route'">
+          <div class="grid grid-cols-4 items-center gap-4">
+            <Label class="text-right">{{ $t('route.form.source.label') }}</Label>
+            <div class="col-span-3">
+               <RepoSelector v-model="form.source_id" :repos="repos" :placeholder="$t('route.form.source.label')" />
+            </div>
+          </div>
+          <div class="grid grid-cols-4 items-center gap-4">
+            <Label class="text-right">{{ $t('route.form.target.label') }}</Label>
+            <div class="col-span-3">
+               <RepoSelector v-model="form.target_id" :repos="repos" :placeholder="$t('route.form.target.label')" />
+            </div>
+          </div>
+        </template>
       </div>
 
-      <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-         <button @click="close" class="mt-2 sm:mt-0 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
-            {{ $t('common.cancel') }}
-         </button>
-         <button @click="submit" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
-            {{ $t('actions.save') }}
-         </button>
-      </div>
-    </div>
-  </div>
+      <DialogFooter>
+        <Button variant="outline" @click="close">
+          {{ $t('common.cancel') }}
+        </Button>
+        <Button @click="submit" :disabled="!form.name">
+          {{ $t('actions.save') }}
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import RepoSelector from '../repo/RepoSelector.vue';
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 defineProps<{
     repos: any[];
@@ -71,6 +86,10 @@ const open = (type: 'route' | 'group', parent: string | null = null) => {
 
 const close = () => {
     isOpen.value = false;
+};
+
+const setOpen = (val: boolean) => {
+    isOpen.value = val;
 };
 
 const submit = () => {

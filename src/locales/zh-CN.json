@@ -1,192 +1,194 @@
 {
-  "nav": {
-    "dashboard": "仪表盘",
-    "repos": "仓库管理",
-    "routes": "同步路线",
-    "tasks": "任务编排",
-    "settings": "全局设置"
-  },
-  "window": {
-    "minimize": "最小化",
-    "maximize": "最大化",
-    "close": "关闭"
-  },
-  "actions": {
-      "save": "保存",
-      "check_now": "立即检查"
-  },
-  "settings": {
-      "title": "设置",
-      "appearance": {
-          "title": "外观",
-          "theme": "主题",
-          "language": "语言"
-      },
-      "env": {
-          "title": "环境",
-          "git_path": "Git 可执行路径",
-          "ssh_path": "SSH Key 默认路径"
-      },
-      "system": {
-          "title": "系统",
-          "startup": "开机自启",
-          "check": "启动检查"
-      }
-  },
-  "repo": {
-      "group": {
-          "new": "新建分组",
-          "name": "分组名称",
-          "parent": "父级分组"
-      },
-      "add": "添加仓库",
-      "context": {
-          "open_terminal": "在终端打开",
-          "edit": "编辑",
-          "delete": "删除",
-          "new_subgroup": "新建子分组",
-          "add_repo": "在此添加仓库",
-          "rename": "重命名"
-      },
-      "form": {
-          "name": {
-              "label": "名称",
-              "placeholder": "仓库名称"
-          },
-          "path": {
-              "label": "路径",
-              "placeholder": "本地路径"
-          },
-          "group": {
-              "label": "分组"
-          }
-      },
-      "no_repos": "请选择一个仓库查看详情，或添加新仓库。",
-      "scan": {
-          "title": "扫描导入仓库",
-          "desc": "选择一个文件夹递归扫描 Git 仓库。"
-      }
-  },
-  "common": {
-      "browse": "浏览",
-      "scan": "扫描",
-      "scanning": "扫描中...",
-      "cancel": "取消",
-      "import": "导入选中",
-      "importing": "导入中...",
-      "filter": "过滤..."
-  },
-  "route": {
-      "group": {
-          "new": "新建同步分组",
-          "name": "分组名称",
-          "parent": "父级分组"
-      },
-      "add": "添加同步路线",
-      "tabs": {
-          "info": "信息",
-          "mappings": "映射规则"
-      },
-      "context": {
-          "new_subgroup": "新建子分组",
-          "add_route": "在此添加路线",
-          "rename": "重命名",
-          "delete": "删除"
-      },
-      "form": {
-          "name": {
-              "label": "名称",
-              "placeholder": "路线名称"
-          },
-          "source": {
-              "label": "源仓库"
-          },
-          "target": {
-              "label": "目标仓库"
-          },
-          "group": {
-              "label": "分组"
-          }
-      },
-      "mapping": {
-          "source": "源路径 (Glob)",
-          "target": "目标路径",
-          "mode": "模式",
-          "actions": "操作",
-          "add": "添加规则",
-          "test": "测试匹配",
-          "test_placeholder": "测试路径 (如 src/main.ts)",
-          "modes": {
-              "copy": "复制",
-              "ignore": "忽略"
-          },
-          "placeholder": {
-              "source": "src/**/*.ts",
-              "target": "dest/"
-          }
-      },
-      "test": {
-          "match": "匹配规则 #{index}: {target}",
-          "no_match": "无匹配"
-      },
-      "no_routes": "请选择一条路线配置映射规则。",
-      "diff": {
-          "loading": "扫描文件中...",
-          "no_changes": "未检测到变更。",
-          "view": {
-              "inline": "内联视图",
-              "split": "并排视图",
-              "original": "原始 (目标)",
-              "modified": "修改后 (源)"
-          },
-          "status": {
-              "added": "新增",
-              "modified": "修改",
-              "deleted": "删除",
-              "unchanged": "未变"
-          }
-      },
-      "tray": {
-          "show": "显示窗口",
-          "quit": "退出"
-      },
-      "log": {
-          "title": "执行日志",
-          "start": "开始时间",
-          "end": "结束时间",
-          "status": "状态",
-          "output": "输出"
-      }
-  },
-  "dashboard": {
-      "welcome": "欢迎使用 SourceBridge。"
-  },
-  "task": {
-      "form": {
-          "name": {
-              "placeholder": "任务名称"
-          },
-          "schedule": {
-              "placeholder": "Cron 表达式 (例如 * * * * *)"
-          }
-      },
-      "steps": {
-          "sync": {
-              "route_id": "路线 ID"
-          },
-          "git": {
-              "repo_id": "仓库 ID"
-          },
-          "script": {
-              "placeholder": "# 在此编写脚本..."
-          }
-      }
-  },
-  "scan": {
-      "root_path": "根路径",
-      "found": "发现: {count}",
-      "selected": "已选: {count}",
-      "no_results": "未找到 Git 仓库。",
-      "click_browse": "点击浏览以选择文件夹"
-  }
+    "nav": {
+        "dashboard": "仪表盘",
+        "repos": "仓库管理",
+        "routes": "同步路线",
+        "tasks": "任务编排",
+        "settings": "全局设置"
+    },
+    "window": {
+        "minimize": "最小化",
+        "maximize": "最大化",
+        "close": "关闭"
+    },
+    "actions": {
+        "save": "保存",
+        "check_now": "立即检查"
+    },
+    "settings": {
+        "title": "设置",
+        "appearance": {
+            "title": "外观",
+            "theme": "主题",
+            "language": "语言"
+        },
+        "env": {
+            "title": "环境",
+            "git_path": "Git 可执行路径",
+            "ssh_path": "SSH Key 默认路径"
+        },
+        "system": {
+            "title": "系统",
+            "startup": "开机自启",
+            "check": "启动检查"
+        }
+    },
+    "repo": {
+        "group": {
+            "new": "新建分组",
+            "name": "分组名称",
+            "parent": "父级分组"
+        },
+        "add": "添加仓库",
+        "context": {
+            "open_terminal": "在终端打开",
+            "edit": "编辑",
+            "delete": "删除",
+            "new_subgroup": "新建子分组",
+            "add_repo": "在此添加仓库",
+            "rename": "重命名"
+        },
+        "form": {
+            "name": {
+                "label": "名称",
+                "placeholder": "仓库名称"
+            },
+            "path": {
+                "label": "路径",
+                "placeholder": "本地路径"
+            },
+            "group": {
+                "label": "分组"
+            }
+        },
+        "no_repos": "请选择一个仓库查看详情，或添加新仓库。",
+        "scan": {
+            "title": "扫描导入仓库",
+            "desc": "选择一个文件夹递归扫描 Git 仓库。"
+        }
+    },
+    "common": {
+        "browse": "浏览",
+        "scan": "扫描",
+        "scanning": "扫描中...",
+        "cancel": "取消",
+        "import": "导入选中",
+        "importing": "导入中...",
+        "filter": "过滤..."
+    },
+    "route": {
+        "group": {
+            "new": "新建同步分组",
+            "name": "分组名称",
+            "parent": "父级分组"
+        },
+        "add": "添加同步路线",
+        "tabs": {
+            "info": "信息",
+            "mappings": "映射规则"
+        },
+        "context": {
+            "new_subgroup": "新建子分组",
+            "add_route": "在此添加路线",
+            "rename": "重命名",
+            "delete": "删除"
+        },
+        "form": {
+            "name": {
+                "label": "名称",
+                "placeholder": "路线名称"
+            },
+            "source": {
+                "label": "源仓库"
+            },
+            "target": {
+                "label": "目标仓库"
+            },
+            "group": {
+                "label": "分组"
+            }
+        },
+        "mapping": {
+            "source": "源路径 (Glob)",
+            "target": "目标路径",
+            "mode": "模式",
+            "actions": "操作",
+            "add": "添加规则",
+            "test": "测试匹配",
+            "test_placeholder": "测试路径 (如 src/main.ts)",
+            "modes": {
+                "copy": "复制",
+                "ignore": "忽略"
+            },
+            "placeholder": {
+                "source": "src/**/*.ts",
+                "target": "dest/"
+            }
+        },
+        "test": {
+            "match": "匹配规则 #{index}: {target}",
+            "no_match": "无匹配"
+        },
+        "no_routes": "请选择一条路线配置映射规则。",
+        "diff": {
+            "loading": "扫描文件中...",
+            "no_changes": "未检测到变更。",
+            "view": {
+                "inline": "内联视图",
+                "split": "并排视图",
+                "original": "原始 (目标)",
+                "modified": "修改后 (源)"
+            },
+            "status": {
+                "added": "新增",
+                "modified": "修改",
+                "deleted": "删除",
+                "unchanged": "未变"
+            }
+        },
+        "tray": {
+            "show": "显示窗口",
+            "quit": "退出"
+        },
+        "log": {
+            "title": "执行日志",
+            "start": "开始时间",
+            "end": "结束时间",
+            "status": "状态",
+            "output": "输出"
+        }
+    },
+    "dashboard": {
+        "welcome": "欢迎使用 SourceBridge。"
+    },
+    "task": {
+        "form": {
+            "name": {
+                "placeholder": "任务名称"
+            },
+            "schedule": {
+                "placeholder": "Cron 表达式 (例如 * * * * *)"
+            }
+        },
+        "steps": {
+            "sync": {
+                "route_id": "路线 ID"
+            },
+            "git": {
+                "repo_id": "仓库 ID"
+            },
+            "script": {
+                "placeholder": "# 在此编写脚本..."
+            }
+        }
+    },
+    "scan": {
+        "click_browse": "点击浏览以选择文件夹",
+        "grouping": {
+            "label": "分组策略",
+            "path": "基于目录结构",
+            "git": "基于 Git URL (Host/Owner)"
+        },
+        "progress": "正在导入: {current} / {total}"
+    }
 }

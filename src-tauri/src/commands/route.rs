@@ -318,5 +318,29 @@ fn build_tree(
             });
         }
     }
+    // For root level (parent_id is None), also append routes that have no group_id
+    if parent_id.is_none() {
+        let root_routes: Vec<RouteNode> = routes
+            .iter()
+            .filter(|r| r.group_id.is_none())
+            .map(|r| RouteNode {
+                id: r.id.clone(),
+                name: r.name.clone(),
+                group_id: None,
+                source_id: r.main_repo_id.clone(),
+                target_id: r.slave_repo_id.clone(),
+            })
+            .collect();
+
+        if !root_routes.is_empty() {
+            nodes.push(RouteGroupNode {
+                id: "route_root_virtual".to_string(),
+                name: "Uncategorized".to_string(),
+                children: vec![],
+                routes: root_routes,
+            });
+        }
+    }
+
     nodes
 }

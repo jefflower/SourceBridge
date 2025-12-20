@@ -94,9 +94,7 @@ const save = () => {
 };
 
 const deleteRepo = () => {
-    if(confirm('Are you sure?')) {
-        emit('delete', props.repo.id);
-    }
+    emit('delete', props.repo.id);
 }
 
 const browsePath = async () => {

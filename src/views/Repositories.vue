@@ -61,6 +61,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
+import { ask } from '@tauri-apps/plugin-dialog';
 import { FolderPlus, Plus, Search, PackageOpen, Trash2, FolderPlus as NewSubgroup, PackagePlus, FolderSearch } from 'lucide-vue-next';
 import RepoTree from '@/components/repo/RepoTree.vue';
 import RepoDetail from '@/components/repo/RepoDetail.vue';
@@ -137,7 +138,12 @@ const handleContextMenuAction = async (action: string) => {
             dialogRef.value?.open('repo', node.id);
             break;
         case 'delete':
-            if (confirm(`确定要删除"${node.name}"吗？`)) {
+            const confirmed = await ask(`确定要删除"${node.name}"吗？`, {
+                title: '删除确认',
+                kind: 'warning'
+            });
+            
+            if (confirmed) {
                 try {
                     if (isGroup) {
                         await invoke('delete_repo_group', { id: node.id });
@@ -212,6 +218,13 @@ const updateRepo = async (repo: any) => {
 };
 
 const deleteRepo = async (id: string) => {
+    const confirmed = await ask('确定要删除该仓库吗？', {
+        title: '删除确认',
+        kind: 'warning'
+    });
+    
+    if (!confirmed) return;
+
      try {
         await invoke('delete_repository', { id });
         selectedRepo.value = null;

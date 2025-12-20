@@ -58,6 +58,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
+import { ask } from '@tauri-apps/plugin-dialog';
 import { FolderPlus, Plus, Search, Waypoints, Trash2, FolderPlus as NewSubgroup, Route } from 'lucide-vue-next';
 import RouteTree from '@/components/route/RouteTree.vue';
 import RouteDetail from '@/components/route/RouteDetail.vue';
@@ -105,11 +106,19 @@ const loadRepos = async () => {
     try {
         const tree: any[] = await invoke('list_repo_tree');
         const flat: any[] = [];
-        const traverse = (nodes: any[]) => {
+        const traverse = (nodes: any[], path: string[] = []) => {
             for (const node of nodes) {
+                const currentPath = node.id === 'root_virtual' ? path : [...path, node.name];
                 if (node.repos) {
-                    flat.push(...node.repos);
-                    traverse(node.children);
+                    node.repos.forEach((r: any) => {
+                        flat.push({
+                            ...r,
+                            groupPath: currentPath.join(' / ')
+                        });
+                    });
+                }
+                if (node.children) {
+                    traverse(node.children, currentPath);
                 }
             }
         };
@@ -152,7 +161,12 @@ const handleContextMenuAction = async (action: string) => {
             dialogRef.value?.open('route', node.id);
             break;
         case 'delete':
-            if (confirm(`确定要删除"${node.name}"吗？`)) {
+            const confirmed = await ask(`确定要删除"${node.name}"吗？`, {
+                title: '删除确认',
+                kind: 'warning'
+            });
+
+            if (confirmed) {
                 try {
                     if (isGroup) {
                         await invoke('delete_route_group', { id: node.id });
@@ -218,6 +232,13 @@ const updateRoute = async (payload: any) => {
 };
 
 const deleteRoute = async (id: string) => {
+    const confirmed = await ask('确定要删除该路线吗？', {
+        title: '删除确认',
+        kind: 'warning'
+    });
+    
+    if (!confirmed) return;
+
      try {
         await invoke('delete_route', { id });
         selectedRoute.value = null;

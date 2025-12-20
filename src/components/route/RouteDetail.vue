@@ -34,17 +34,11 @@
          </div>
          <div class="grid gap-2">
             <label class="text-sm font-medium">{{ $t('route.form.source.label') }}</label>
-            <select v-model="localRoute.source_id" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                <option :value="null">{{ $t('route.form.source.label') }}</option>
-                <option v-for="repo in repos" :key="repo.id" :value="repo.id">{{ repo.name }}</option>
-            </select>
+            <RepoSelector v-model="localRoute.source_id" :repos="repos" :placeholder="$t('route.form.source.label')" />
          </div>
          <div class="grid gap-2">
             <label class="text-sm font-medium">{{ $t('route.form.target.label') }}</label>
-            <select v-model="localRoute.target_id" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                <option :value="null">{{ $t('route.form.target.label') }}</option>
-                <option v-for="repo in repos" :key="repo.id" :value="repo.id">{{ repo.name }}</option>
-            </select>
+            <RepoSelector v-model="localRoute.target_id" :repos="repos" :placeholder="$t('route.form.target.label')" />
          </div>
          <div class="flex justify-end gap-2 mt-4">
             <button @click="deleteRoute" class="bg-destructive text-destructive-foreground hover:bg-destructive/90 px-4 py-2 rounded text-sm font-medium">
@@ -136,6 +130,7 @@
 import { ref, watch } from 'vue';
 import { Waypoints, Trash2, Eye } from 'lucide-vue-next';
 import { invoke } from '@tauri-apps/api/core';
+import RepoSelector from '../repo/RepoSelector.vue';
 import DiffViewerModal from '../diff/DiffViewerModal.vue';
 
 const props = defineProps<{
@@ -192,9 +187,7 @@ const saveMappings = async () => {
 };
 
 const deleteRoute = () => {
-    if(confirm('Are you sure?')) {
-        emit('delete', props.route.id);
-    }
+    emit('delete', props.route.id);
 };
 
 const addRule = () => {
