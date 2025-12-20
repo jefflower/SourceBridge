@@ -53,7 +53,10 @@ pub fn run() {
             commands::repo_scan::scan_local_repos,
             commands::repo_scan::import_scanned_repos,
             commands::git_ops::get_git_branches,
-            commands::git_ops::switch_git_branch
+            commands::git_ops::switch_git_branch,
+            commands::git_ops::get_git_log,
+            commands::git_ops::open_in_folder,
+            commands::git_ops::open_in_terminal
         ])
         .setup(|app| {
             let app_handle = app.handle();

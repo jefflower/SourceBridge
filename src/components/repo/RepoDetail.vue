@@ -8,9 +8,17 @@
         <!-- In real app, maybe show path breadcrumbs -->
       </div>
       <h1 class="text-2xl font-bold tracking-tight">{{ repo.name }}</h1>
-      <div class="flex items-center gap-4 text-sm mt-2">
+      <div class="flex items-center gap-4 text-sm mt-2 justify-between">
         <code class="bg-muted px-2 py-1 rounded">{{ repo.path }}</code>
-        <!-- Actions -->
+
+        <div class="flex gap-2">
+            <button @click="openInFolder" class="p-1 hover:bg-muted rounded text-muted-foreground hover:text-foreground" :title="$t('repo.actions.open_folder', 'Open Folder')">
+                <FolderOpen class="w-4 h-4" />
+            </button>
+            <button @click="openInTerminal" class="p-1 hover:bg-muted rounded text-muted-foreground hover:text-foreground" :title="$t('repo.actions.open_terminal', 'Open Terminal')">
+                <Terminal class="w-4 h-4" />
+            </button>
+        </div>
       </div>
     </div>
 
@@ -55,6 +63,35 @@
         </div>
       </div>
 
+      <div v-if="currentTab === 'history'">
+          <div class="rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden">
+              <div v-if="isLoadingLog" class="p-8 flex justify-center">
+                  <Loader2 class="w-6 h-6 animate-spin text-muted-foreground" />
+              </div>
+              <div v-else-if="gitLog.length === 0" class="p-8 text-center text-muted-foreground">
+                  {{ $t('repo.history.no_log', 'No commit history found') }}
+              </div>
+              <table v-else class="w-full text-sm text-left">
+                  <thead class="bg-muted/50 text-muted-foreground">
+                      <tr>
+                          <th class="px-4 py-2 font-medium">Hash</th>
+                          <th class="px-4 py-2 font-medium">Message</th>
+                          <th class="px-4 py-2 font-medium">Author</th>
+                          <th class="px-4 py-2 font-medium">Date</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <tr v-for="commit in gitLog" :key="commit.id" class="border-t hover:bg-muted/50 transition-colors">
+                          <td class="px-4 py-2 font-mono text-xs">{{ commit.id }}</td>
+                          <td class="px-4 py-2 max-w-xs truncate" :title="commit.message">{{ commit.message }}</td>
+                          <td class="px-4 py-2">{{ commit.author }}</td>
+                          <td class="px-4 py-2 text-muted-foreground text-xs">{{ commit.time }}</td>
+                      </tr>
+                  </tbody>
+              </table>
+          </div>
+      </div>
+
       <div v-if="currentTab === 'settings'">
         <div class="grid gap-4 max-w-xl">
             <div class="grid gap-2">
@@ -86,7 +123,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
-import { Package, Loader2 } from 'lucide-vue-next';
+import { Package, Loader2, FolderOpen, Terminal } from 'lucide-vue-next';
 import { open } from '@tauri-apps/plugin-dialog';
 import { invoke } from '@tauri-apps/api/core';
 import { useI18n } from 'vue-i18n';
@@ -101,6 +138,7 @@ const emit = defineEmits(['update', 'delete']);
 
 const tabs = [
   { label: 'Overview', value: 'overview' },
+  { label: 'History', value: 'history' },
   { label: 'Settings', value: 'settings' },
 ];
 
@@ -109,6 +147,8 @@ const localRepo = ref({ ...props.repo });
 const branches = ref<any[]>([]);
 const currentBranch = ref('');
 const isLoadingBranches = ref(false);
+const gitLog = ref<any[]>([]);
+const isLoadingLog = ref(false);
 
 const loadBranches = async () => {
     if (!props.repo.path) return;
@@ -138,12 +178,54 @@ const onBranchChange = async () => {
     }
 };
 
+const loadHistory = async () => {
+    if (!props.repo.path) return;
+    isLoadingLog.value = true;
+    try {
+        const res = await invoke('get_git_log', { path: props.repo.path, count: 50 });
+        gitLog.value = res as any[];
+    } catch (e) {
+        console.error('Failed to load git log:', e);
+    } finally {
+        isLoadingLog.value = false;
+    }
+};
+
+const openInFolder = async () => {
+    if (!props.repo.path) return;
+    try {
+        await invoke('open_in_folder', { path: props.repo.path });
+    } catch(e) {
+        console.error(e);
+        alert(e);
+    }
+};
+
+const openInTerminal = async () => {
+    if (!props.repo.path) return;
+     try {
+        await invoke('open_in_terminal', { path: props.repo.path });
+    } catch(e) {
+        console.error(e);
+        alert(e);
+    }
+}
+
 watch(() => props.repo, (newVal) => {
     localRepo.value = { ...newVal };
     if (newVal.path) {
         loadBranches();
+        if (currentTab.value === 'history') {
+            loadHistory();
+        }
     }
 }, { immediate: true });
+
+watch(currentTab, (newVal) => {
+    if (newVal === 'history' && props.repo.path) {
+        loadHistory();
+    }
+});
 
 const save = () => {
     emit('update', localRepo.value);

@@ -70,6 +70,16 @@
           "label": "Branch",
           "switch_success": "Branch switched successfully",
           "switch_failed": "Failed to switch branch"
+      },
+      "tabs": {
+          "history": "History"
+      },
+      "actions": {
+          "open_folder": "Open Folder",
+          "open_terminal": "Open in Terminal"
+      },
+      "history": {
+          "no_log": "No commit history found"
       }
   },
   "common": {

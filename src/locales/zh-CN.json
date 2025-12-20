@@ -70,6 +70,16 @@
             "label": "分支",
             "switch_success": "分支切换成功",
             "switch_failed": "分支切换失败"
+        },
+        "tabs": {
+            "history": "提交记录"
+        },
+        "actions": {
+            "open_folder": "打开目录",
+            "open_terminal": "终端内打开"
+        },
+        "history": {
+            "no_log": "暂无提交记录"
         }
     },
     "common": {
