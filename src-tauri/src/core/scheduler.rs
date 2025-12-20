@@ -5,10 +5,12 @@ use sea_orm::{EntityTrait, QueryFilter, ColumnTrait};
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
+#[allow(dead_code)]
 pub struct SchedulerManager {
     scheduler: Arc<RwLock<JobScheduler>>,
 }
 
+#[allow(dead_code)]
 impl SchedulerManager {
     pub async fn new() -> Result<Self, Box<dyn std::error::Error>> {
         let scheduler = JobScheduler::new().await?;

@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineExpose } from 'vue';
+import { ref } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
 
 const isOpen = ref(false);

@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { Trash2, Terminal, GitBranch, Waypoints } from 'lucide-vue-next';
 import ScriptStepForm from './step_forms/ScriptStepForm.vue';
 import GitStepForm from './step_forms/GitStepForm.vue';

@@ -31,7 +31,12 @@
         <div class="grid gap-4">
           <div class="grid grid-cols-4 items-center gap-4">
             <label class="text-sm font-medium">{{ $t('settings.env.git_path') }}</label>
-            <input type="text" v-model="settings.git_path" @change="saveSetting('git_path', settings.git_path)" class="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
+            <div class="col-span-3 flex gap-2">
+              <input type="text" v-model="settings.git_path" @change="saveSetting('git_path', settings.git_path)" class="flex-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
+              <button type="button" @click="browseGitPath" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-3">
+                Browse
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -52,13 +57,15 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
+import { open } from '@tauri-apps/plugin-dialog';
 import { useI18n } from 'vue-i18n';
+import { setTheme, type Theme } from '@/composables/useTheme';
 
 const { locale } = useI18n();
 
 const settings = ref({
     language: 'en',
-    theme: 'system',
+    theme: 'system' as Theme,
     git_path: 'git',
 });
 
@@ -69,7 +76,7 @@ onMounted(async () => {
             settings.value.language = allSettings.language;
             locale.value = allSettings.language;
         }
-        if (allSettings.theme) settings.value.theme = allSettings.theme;
+        if (allSettings.theme) settings.value.theme = allSettings.theme as Theme;
         if (allSettings.git_path) settings.value.git_path = allSettings.git_path;
     } catch (e) {
         console.error('Failed to load settings:', e);
@@ -78,13 +85,30 @@ onMounted(async () => {
 
 const saveSetting = async (key: string, value: string) => {
     try {
-        await invoke('set_setting', { key, value });
+        if (key === 'theme') {
+            // Use setTheme to apply theme immediately
+            await setTheme(value as Theme);
+        } else {
+            await invoke('set_setting', { key, value });
+        }
         if (key === 'language') {
             locale.value = value;
         }
         console.log(`Saved ${key}: ${value}`);
     } catch (e) {
         console.error(`Failed to save ${key}:`, e);
+    }
+};
+
+const browseGitPath = async () => {
+    const selected = await open({
+        directory: false,
+        multiple: false,
+        title: 'Select Git Executable'
+    });
+    if (selected && typeof selected === 'string') {
+        settings.value.git_path = selected;
+        await saveSetting('git_path', selected);
     }
 };
 </script>

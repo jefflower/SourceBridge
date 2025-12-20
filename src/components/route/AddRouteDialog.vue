@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineExpose, defineEmits, defineProps } from 'vue';
+import { ref } from 'vue';
 
 const props = defineProps<{
     repos: any[];

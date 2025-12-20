@@ -1,7 +1,7 @@
 use anyhow::Result;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::fs;
-use similar::{ChangeTag, TextDiff};
+use similar::TextDiff;
 use walkdir::WalkDir;
 use glob::Pattern;
 use serde::{Deserialize, Serialize};
@@ -32,9 +32,10 @@ pub struct DiffSummary {
 pub struct DiffEngine;
 
 impl DiffEngine {
-    pub fn scan_changes(route: &routes::Model, mappings_json: &str) -> Result<DiffSummary> {
+    #[allow(dead_code)]
+    pub fn scan_changes(_route: &routes::Model, mappings_json: &str) -> Result<DiffSummary> {
         // 1. Parse mappings
-        let rules: Vec<MappingRule> = serde_json::from_str(mappings_json)?;
+        let _rules: Vec<MappingRule> = serde_json::from_str(mappings_json)?;
 
         // 2. Resolve Repos
         // In a real scenario, we would query the repositories table to get the local paths.
@@ -114,6 +115,7 @@ impl DiffEngine {
         Ok(DiffSummary { changes })
     }
 
+    #[allow(dead_code)]
     pub fn compute_text_diff(source_path: &Path, target_path: &Path) -> Result<String> {
         let source_text = if source_path.exists() {
             fs::read_to_string(source_path).unwrap_or_default()
@@ -127,7 +129,7 @@ impl DiffEngine {
             String::new()
         };
 
-        let diff = TextDiff::from_lines(&target_text, &source_text);
+        let _diff = TextDiff::from_lines(&target_text, &source_text);
 
         // Return unified diff or side-by-side structure?
         // Monaco editor createDiffEditor expects two models (original, modified).

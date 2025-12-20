@@ -2,7 +2,7 @@ use anyhow::Result;
 use std::process::Command;
 use serde::{Deserialize, Serialize};
 use crate::database::entities::{tasks, task_steps, task_execution_logs};
-use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set, QueryOrder, DatabaseConnection};
+use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set, QueryOrder};
 use chrono::Utc;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -73,6 +73,7 @@ impl StepExecutor for GitExecutor {
 use crate::core::sync::SyncEngine;
 use crate::database::manager::DatabaseManager;
 
+#[allow(dead_code)]
 pub struct SyncExecutor<'a> {
     pub db_manager: &'a DatabaseManager
 }

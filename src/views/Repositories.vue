@@ -28,6 +28,7 @@
             :treeData="treeData"
             @select="selectNode"
             @context-menu="onContextMenu"
+            @move="handleMove"
         />
       </div>
     </div>
@@ -47,27 +48,53 @@
     </div>
 
     <AddRepoDialog ref="dialogRef" @create="handleCreate" />
+    
+    <!-- Context Menu -->
+    <ContextMenu ref="contextMenuRef" :items="contextMenuItems" @select="handleContextMenuAction" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
-import { FolderPlus, Plus, Search, PackageOpen } from 'lucide-vue-next';
+import { FolderPlus, Plus, Search, PackageOpen, Trash2, FolderPlus as NewSubgroup, PackagePlus } from 'lucide-vue-next';
 import RepoTree from '@/components/repo/RepoTree.vue';
 import RepoDetail from '@/components/repo/RepoDetail.vue';
 import AddRepoDialog from '@/components/repo/AddRepoDialog.vue';
+import ContextMenu from '@/components/common/ContextMenu.vue';
+import type { MenuItem } from '@/components/common/ContextMenu.vue';
 
 const treeData = ref<any[]>([]);
 const searchQuery = ref('');
 const selectedRepo = ref<any>(null);
 const dialogRef = ref<any>(null);
+const contextMenuRef = ref<any>(null);
+const contextMenuNode = ref<any>(null);
+
+// Context menu items based on node type
+const contextMenuItems = computed<MenuItem[]>(() => {
+    if (!contextMenuNode.value) return [];
+    
+    const isGroup = contextMenuNode.value.children !== undefined || contextMenuNode.value.repos !== undefined;
+    
+    if (isGroup) {
+        return [
+            { key: 'new_subgroup', label: '新建子分组', icon: NewSubgroup },
+            { key: 'add_repo', label: '在此添加仓库', icon: PackagePlus },
+            { key: 'delete', label: '删除分组', icon: Trash2, danger: true },
+        ];
+    } else {
+        return [
+            { key: 'delete', label: '删除仓库', icon: Trash2, danger: true },
+        ];
+    }
+});
 
 const loadTree = async () => {
     try {
         const data = await invoke('list_repo_tree');
+        console.log('[loadTree] Tree data from backend:', JSON.stringify(data, null, 2));
         treeData.value = data as any[];
-        // Flatten or process if needed, but tree component handles recursion
     } catch (e) {
         console.error('Failed to load repo tree:', e);
     }
@@ -81,14 +108,47 @@ const selectNode = (node: any) => {
     if (node.group_id !== undefined || node.type === 'repo') {
         selectedRepo.value = node;
     } else {
-        // It's a group, maybe show group stats?
         selectedRepo.value = null;
     }
 };
 
 const onContextMenu = (event: MouseEvent, node: any) => {
-    // Implement Context Menu (out of scope for quick verification, but logical step)
-    console.log('Context menu', node);
+    contextMenuNode.value = node;
+    contextMenuRef.value?.open(event);
+};
+
+const handleContextMenuAction = async (action: string) => {
+    const node = contextMenuNode.value;
+    if (!node) return;
+    
+    const isGroup = node.children !== undefined || node.repos !== undefined;
+    
+    switch (action) {
+        case 'new_subgroup':
+            dialogRef.value?.open('group', node.id);
+            break;
+        case 'add_repo':
+            dialogRef.value?.open('repo', node.id);
+            break;
+        case 'delete':
+            if (confirm(`确定要删除"${node.name}"吗？`)) {
+                try {
+                    if (isGroup) {
+                        await invoke('delete_repo_group', { id: node.id });
+                    } else {
+                        await invoke('delete_repository', { id: node.id });
+                    }
+                    if (selectedRepo.value?.id === node.id) {
+                        selectedRepo.value = null;
+                    }
+                    await loadTree();
+                } catch (e) {
+                    console.error(e);
+                    alert('删除失败: ' + e);
+                }
+            }
+            break;
+    }
 };
 
 const openDialog = (type: 'repo' | 'group') => {
@@ -96,13 +156,16 @@ const openDialog = (type: 'repo' | 'group') => {
 };
 
 const handleCreate = async (payload: any) => {
+    console.log('[handleCreate] Payload:', payload);
     try {
         if (payload.type === 'group') {
+            console.log('[handleCreate] Creating group with parent_id:', payload.parentId);
             await invoke('create_repo_group', {
                 name: payload.data.name,
                 parent_id: payload.parentId
             });
         } else {
+            console.log('[handleCreate] Creating repo with group_id:', payload.parentId);
              await invoke('add_repository', {
                 name: payload.data.name,
                 path: payload.data.path,
@@ -110,9 +173,10 @@ const handleCreate = async (payload: any) => {
                 group_id: payload.parentId
             });
         }
+        console.log('[handleCreate] Success, reloading tree...');
         await loadTree();
     } catch (e) {
-        console.error(e);
+        console.error('[handleCreate] Error:', e);
         alert('Error: ' + e);
     }
 };
@@ -123,11 +187,10 @@ const updateRepo = async (repo: any) => {
             id: repo.id,
             name: repo.name,
             path: repo.path,
-            url: null, // TODO
+            url: null,
             group_id: repo.group_id
         });
         await loadTree();
-        // re-select?
     } catch (e) {
         console.error(e);
     }
@@ -142,4 +205,29 @@ const deleteRepo = async (id: string) => {
         console.error(e);
     }
 }
+
+const handleMove = async (data: { draggedId: string; draggedType: string; targetGroupId: string }) => {
+    console.log('[handleMove] Received:', data);
+    try {
+        if (data.draggedType === 'group') {
+            console.log('[handleMove] Moving group', data.draggedId, 'to parent', data.targetGroupId);
+            await invoke('update_repo_group_parent', { 
+                id: data.draggedId, 
+                parent_id: data.targetGroupId 
+            });
+        } else {
+            console.log('[handleMove] Moving repo', data.draggedId, 'to group', data.targetGroupId);
+            await invoke('update_repository_group', { 
+                id: data.draggedId, 
+                group_id: data.targetGroupId 
+            });
+        }
+        console.log('[handleMove] Success, reloading tree...');
+        await loadTree();
+    } catch (e) {
+        console.error('[handleMove] Error:', e);
+        alert('移动失败: ' + e);
+    }
+};
 </script>
+

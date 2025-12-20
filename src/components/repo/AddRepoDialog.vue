@@ -17,7 +17,12 @@
         <!-- Path (Repo Only) -->
         <div v-if="mode === 'repo'" class="grid grid-cols-4 items-center gap-4">
           <label class="text-right text-sm font-medium">{{ $t('repo.form.path.label') }}</label>
-          <input v-model="form.path" class="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" :placeholder="$t('repo.form.path.placeholder')" />
+          <div class="col-span-3 flex gap-2">
+            <input v-model="form.path" class="flex-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" :placeholder="$t('repo.form.path.placeholder')" />
+            <button type="button" @click="browsePath" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-3">
+              Browse
+            </button>
+          </div>
         </div>
       </div>
 
@@ -34,7 +39,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineExpose, defineEmits } from 'vue';
+import { ref } from 'vue';
+import { open } from '@tauri-apps/plugin-dialog';
 
 const isOpen = ref(false);
 const mode = ref<'repo' | 'group'>('repo');
@@ -47,11 +53,22 @@ const form = ref({
 
 const emit = defineEmits(['create']);
 
-const open = (type: 'repo' | 'group', parent: string | null = null) => {
+const openDialog = (type: 'repo' | 'group', parent: string | null = null) => {
     mode.value = type;
     parentId.value = parent;
     form.value = { name: '', path: '' };
     isOpen.value = true;
+};
+
+const browsePath = async () => {
+    const selected = await open({
+        directory: true,
+        multiple: false,
+        title: 'Select Repository Path'
+    });
+    if (selected && typeof selected === 'string') {
+        form.value.path = selected;
+    }
 };
 
 const close = () => {
@@ -67,5 +84,5 @@ const submit = () => {
     close();
 };
 
-defineExpose({ open, close });
+defineExpose({ open: openDialog, close });
 </script>

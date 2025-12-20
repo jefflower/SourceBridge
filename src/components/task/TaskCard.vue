@@ -42,7 +42,6 @@
 </template>
 
 <script setup lang="ts">
-import { defineProps } from 'vue';
 import { Clock, Play, Trash2, List } from 'lucide-vue-next';
 
 defineProps<{

@@ -1,10 +1,10 @@
 use crate::database::entities::{route_groups, routes};
 use crate::database::manager::DatabaseManager;
-use sea_orm::{ActiveModelTrait, EntityTrait, Set, QueryOrder};
-use tauri::{State};
-use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 use glob::Pattern;
+use sea_orm::{ActiveModelTrait, EntityTrait, QueryOrder, Set};
+use serde::{Deserialize, Serialize};
+use tauri::State;
+use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RouteNode {
@@ -37,8 +37,12 @@ pub struct TestMatchResult {
     pub target_path: Option<String>,
 }
 
-#[tauri::command]
-pub async fn create_route_group(name: String, parent_id: Option<String>, state: State<'_, DatabaseManager>) -> Result<(), String> {
+#[tauri::command(rename_all = "snake_case")]
+pub async fn create_route_group(
+    name: String,
+    parent_id: Option<String>,
+    state: State<'_, DatabaseManager>,
+) -> Result<(), String> {
     let db = &state.connection;
     let id = Uuid::new_v4().to_string();
 
@@ -54,16 +58,30 @@ pub async fn create_route_group(name: String, parent_id: Option<String>, state: 
 }
 
 #[tauri::command]
-pub async fn delete_route_group(id: String, state: State<'_, DatabaseManager>) -> Result<(), String> {
+pub async fn delete_route_group(
+    id: String,
+    state: State<'_, DatabaseManager>,
+) -> Result<(), String> {
     let db = &state.connection;
-    route_groups::Entity::delete_by_id(id).exec(db).await.map_err(|e| e.to_string())?;
+    route_groups::Entity::delete_by_id(id)
+        .exec(db)
+        .await
+        .map_err(|e| e.to_string())?;
     Ok(())
 }
 
-#[tauri::command]
-pub async fn update_route_group(id: String, name: String, parent_id: Option<String>, state: State<'_, DatabaseManager>) -> Result<(), String> {
+#[tauri::command(rename_all = "snake_case")]
+pub async fn update_route_group(
+    id: String,
+    name: String,
+    parent_id: Option<String>,
+    state: State<'_, DatabaseManager>,
+) -> Result<(), String> {
     let db = &state.connection;
-    let existing = route_groups::Entity::find_by_id(&id).one(db).await.map_err(|e| e.to_string())?;
+    let existing = route_groups::Entity::find_by_id(&id)
+        .one(db)
+        .await
+        .map_err(|e| e.to_string())?;
 
     if let Some(model) = existing {
         let mut active: route_groups::ActiveModel = model.into();
@@ -74,14 +92,14 @@ pub async fn update_route_group(id: String, name: String, parent_id: Option<Stri
     Ok(())
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub async fn create_route(
     name: String,
     description: Option<String>,
     source_id: Option<String>,
     target_id: Option<String>,
     group_id: Option<String>,
-    state: State<'_, DatabaseManager>
+    state: State<'_, DatabaseManager>,
 ) -> Result<(), String> {
     let db = &state.connection;
     let id = Uuid::new_v4().to_string();
@@ -101,7 +119,7 @@ pub async fn create_route(
     Ok(())
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub async fn update_route(
     id: String,
     name: String,
@@ -109,10 +127,13 @@ pub async fn update_route(
     source_id: Option<String>,
     target_id: Option<String>,
     group_id: Option<String>,
-    state: State<'_, DatabaseManager>
+    state: State<'_, DatabaseManager>,
 ) -> Result<(), String> {
     let db = &state.connection;
-    let existing = routes::Entity::find_by_id(&id).one(db).await.map_err(|e| e.to_string())?;
+    let existing = routes::Entity::find_by_id(&id)
+        .one(db)
+        .await
+        .map_err(|e| e.to_string())?;
 
     if let Some(model) = existing {
         let mut active: routes::ActiveModel = model.into();
@@ -128,9 +149,16 @@ pub async fn update_route(
 }
 
 #[tauri::command]
-pub async fn update_route_mappings(id: String, mappings: String, state: State<'_, DatabaseManager>) -> Result<(), String> {
+pub async fn update_route_mappings(
+    id: String,
+    mappings: String,
+    state: State<'_, DatabaseManager>,
+) -> Result<(), String> {
     let db = &state.connection;
-    let existing = routes::Entity::find_by_id(&id).one(db).await.map_err(|e| e.to_string())?;
+    let existing = routes::Entity::find_by_id(&id)
+        .one(db)
+        .await
+        .map_err(|e| e.to_string())?;
 
     if let Some(model) = existing {
         let mut active: routes::ActiveModel = model.into();
@@ -144,27 +172,88 @@ pub async fn update_route_mappings(id: String, mappings: String, state: State<'_
 #[tauri::command]
 pub async fn delete_route(id: String, state: State<'_, DatabaseManager>) -> Result<(), String> {
     let db = &state.connection;
-    routes::Entity::delete_by_id(id).exec(db).await.map_err(|e| e.to_string())?;
+    routes::Entity::delete_by_id(id)
+        .exec(db)
+        .await
+        .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub async fn update_route_group_id(
+    id: String,
+    group_id: Option<String>,
+    state: State<'_, DatabaseManager>,
+) -> Result<(), String> {
+    let db = &state.connection;
+    let existing = routes::Entity::find_by_id(&id)
+        .one(db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if let Some(model) = existing {
+        let mut active: routes::ActiveModel = model.into();
+        active.group_id = Set(group_id);
+        active.updated_at = Set(chrono::Utc::now().naive_utc());
+        active.update(db).await.map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub async fn update_route_group_parent(
+    id: String,
+    parent_id: Option<String>,
+    state: State<'_, DatabaseManager>,
+) -> Result<(), String> {
+    let db = &state.connection;
+    if parent_id.as_ref() == Some(&id) {
+        return Err("Cannot set group as its own parent".to_string());
+    }
+
+    let existing = route_groups::Entity::find_by_id(&id)
+        .one(db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if let Some(model) = existing {
+        let mut active: route_groups::ActiveModel = model.into();
+        active.parent_id = Set(parent_id);
+        active.update(db).await.map_err(|e| e.to_string())?;
+    }
     Ok(())
 }
 
 #[tauri::command]
-pub async fn list_route_tree(state: State<'_, DatabaseManager>) -> Result<Vec<RouteGroupNode>, String> {
+pub async fn list_route_tree(
+    state: State<'_, DatabaseManager>,
+) -> Result<Vec<RouteGroupNode>, String> {
     let db = &state.connection;
 
     let all_groups = route_groups::Entity::find()
         .order_by_asc(route_groups::Column::SortOrder)
-        .all(db).await.map_err(|e| e.to_string())?;
+        .all(db)
+        .await
+        .map_err(|e| e.to_string())?;
 
-    let all_routes = routes::Entity::find().all(db).await.map_err(|e| e.to_string())?;
+    let all_routes = routes::Entity::find()
+        .all(db)
+        .await
+        .map_err(|e| e.to_string())?;
 
     Ok(build_tree(&all_groups, &all_routes, None))
 }
 
 #[tauri::command]
-pub async fn get_route_details(id: String, state: State<'_, DatabaseManager>) -> Result<Option<routes::Model>, String> {
+pub async fn get_route_details(
+    id: String,
+    state: State<'_, DatabaseManager>,
+) -> Result<Option<routes::Model>, String> {
     let db = &state.connection;
-    let route = routes::Entity::find_by_id(id).one(db).await.map_err(|e| e.to_string())?;
+    let route = routes::Entity::find_by_id(id)
+        .one(db)
+        .await
+        .map_err(|e| e.to_string())?;
     Ok(route)
 }
 
@@ -199,13 +288,18 @@ pub async fn test_route_mapping(path: String, mappings: String) -> Result<TestMa
     })
 }
 
-fn build_tree(groups: &[route_groups::Model], routes: &[routes::Model], parent_id: Option<&String>) -> Vec<RouteGroupNode> {
+fn build_tree(
+    groups: &[route_groups::Model],
+    routes: &[routes::Model],
+    parent_id: Option<&String>,
+) -> Vec<RouteGroupNode> {
     let mut nodes = Vec::new();
 
     for group in groups {
         if group.parent_id.as_ref() == parent_id {
             let children = build_tree(groups, routes, Some(&group.id));
-            let group_routes: Vec<RouteNode> = routes.iter()
+            let group_routes: Vec<RouteNode> = routes
+                .iter()
                 .filter(|r| r.group_id.as_ref() == Some(&group.id))
                 .map(|r| RouteNode {
                     id: r.id.clone(),

@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, defineExpose } from 'vue';
+import { ref } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
 import FileChangeTree from './FileChangeTree.vue';
 import MonacoDiffEditor from './MonacoDiffEditor.vue';

@@ -28,6 +28,7 @@
             :treeData="treeData"
             @select="selectNode"
             @context-menu="onContextMenu"
+            @move="handleMove"
         />
       </div>
     </div>
@@ -48,22 +49,48 @@
     </div>
 
     <AddRouteDialog ref="dialogRef" :repos="repos" @create="handleCreate" />
+    
+    <!-- Context Menu -->
+    <ContextMenu ref="contextMenuRef" :items="contextMenuItems" @select="handleContextMenuAction" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
-import { FolderPlus, Plus, Search, Waypoints } from 'lucide-vue-next';
+import { FolderPlus, Plus, Search, Waypoints, Trash2, FolderPlus as NewSubgroup, Route } from 'lucide-vue-next';
 import RouteTree from '@/components/route/RouteTree.vue';
 import RouteDetail from '@/components/route/RouteDetail.vue';
 import AddRouteDialog from '@/components/route/AddRouteDialog.vue';
+import ContextMenu from '@/components/common/ContextMenu.vue';
+import type { MenuItem } from '@/components/common/ContextMenu.vue';
 
 const treeData = ref<any[]>([]);
 const searchQuery = ref('');
 const selectedRoute = ref<any>(null);
 const dialogRef = ref<any>(null);
-const repos = ref<any[]>([]); // Need to fetch flat list of repos for dropdowns
+const repos = ref<any[]>([]);
+const contextMenuRef = ref<any>(null);
+const contextMenuNode = ref<any>(null);
+
+// Context menu items based on node type
+const contextMenuItems = computed<MenuItem[]>(() => {
+    if (!contextMenuNode.value) return [];
+    
+    const isGroup = contextMenuNode.value.children !== undefined || contextMenuNode.value.routes !== undefined;
+    
+    if (isGroup) {
+        return [
+            { key: 'new_subgroup', label: '新建子分组', icon: NewSubgroup },
+            { key: 'add_route', label: '在此添加路线', icon: Route },
+            { key: 'delete', label: '删除分组', icon: Trash2, danger: true },
+        ];
+    } else {
+        return [
+            { key: 'delete', label: '删除路线', icon: Trash2, danger: true },
+        ];
+    }
+});
 
 const loadTree = async () => {
     try {
@@ -75,9 +102,6 @@ const loadTree = async () => {
 };
 
 const loadRepos = async () => {
-    // We need a flat list of repos. `list_repo_tree` returns nested.
-    // For now, let's just fetch the tree and flatten it, or assuming backend has a list_all_repos (we didn't implement it yet explicitly flat, but tree contains all).
-    // Let's implement a simple flatten helper on frontend for now.
     try {
         const tree: any[] = await invoke('list_repo_tree');
         const flat: any[] = [];
@@ -103,7 +127,6 @@ onMounted(() => {
 
 const selectNode = (node: any) => {
     if (node.source_id !== undefined || node.target_id !== undefined) {
-        // It's a route
         selectedRoute.value = node;
     } else {
         selectedRoute.value = null;
@@ -111,7 +134,42 @@ const selectNode = (node: any) => {
 };
 
 const onContextMenu = (event: MouseEvent, node: any) => {
-    console.log('Context menu', node);
+    contextMenuNode.value = node;
+    contextMenuRef.value?.open(event);
+};
+
+const handleContextMenuAction = async (action: string) => {
+    const node = contextMenuNode.value;
+    if (!node) return;
+    
+    const isGroup = node.children !== undefined || node.routes !== undefined;
+    
+    switch (action) {
+        case 'new_subgroup':
+            dialogRef.value?.open('group', node.id);
+            break;
+        case 'add_route':
+            dialogRef.value?.open('route', node.id);
+            break;
+        case 'delete':
+            if (confirm(`确定要删除"${node.name}"吗？`)) {
+                try {
+                    if (isGroup) {
+                        await invoke('delete_route_group', { id: node.id });
+                    } else {
+                        await invoke('delete_route', { id: node.id });
+                    }
+                    if (selectedRoute.value?.id === node.id) {
+                        selectedRoute.value = null;
+                    }
+                    await loadTree();
+                } catch (e) {
+                    console.error(e);
+                    alert('删除失败: ' + e);
+                }
+            }
+            break;
+    }
 };
 
 const openDialog = (type: 'route' | 'group') => {
@@ -153,7 +211,6 @@ const updateRoute = async (payload: any) => {
                 group_id: payload.data.group_id
             });
         }
-        // mappings are handled inside component via `update_route_mappings`
         await loadTree();
     } catch (e) {
         console.error(e);
@@ -169,4 +226,25 @@ const deleteRoute = async (id: string) => {
         console.error(e);
     }
 }
+
+const handleMove = async (data: { draggedId: string; draggedType: string; targetGroupId: string }) => {
+    try {
+        if (data.draggedType === 'group') {
+            await invoke('update_route_group_parent', { 
+                id: data.draggedId, 
+                parent_id: data.targetGroupId 
+            });
+        } else {
+            await invoke('update_route_group_id', { 
+                id: data.draggedId, 
+                group_id: data.targetGroupId 
+            });
+        }
+        await loadTree();
+    } catch (e) {
+        console.error('Move failed:', e);
+        alert('移动失败: ' + e);
+    }
+};
 </script>
+

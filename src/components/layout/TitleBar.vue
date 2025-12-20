@@ -1,5 +1,9 @@
 <template>
-  <div data-tauri-drag-region class="h-8 bg-background border-b flex items-center justify-between select-none fixed top-0 left-0 right-0 z-50">
+  <div 
+    data-tauri-drag-region 
+    class="h-8 bg-background border-b flex items-center justify-between select-none fixed top-0 left-0 right-0 z-50"
+    @mousedown="startDrag"
+  >
     <div class="flex items-center px-4 pointer-events-none">
       <span class="font-bold text-sm">SourceBridge</span>
     </div>
@@ -23,7 +27,14 @@ import { Minus, Square, X } from 'lucide-vue-next';
 
 const appWindow = getCurrentWindow();
 
+const startDrag = (e: MouseEvent) => {
+  // Only start drag if not clicking on buttons
+  if ((e.target as HTMLElement).closest('button')) return;
+  appWindow.startDragging();
+};
+
 const minimize = () => appWindow.minimize();
 const maximize = () => appWindow.toggleMaximize();
 const close = () => appWindow.close();
 </script>
+

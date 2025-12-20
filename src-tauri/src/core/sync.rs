@@ -3,12 +3,13 @@ use std::fs;
 use std::path::Path;
 use crate::database::entities::{routes, repositories};
 use crate::database::manager::DatabaseManager;
-use crate::core::diff::{DiffEngine, ChangeType, DiffSummary};
+use crate::core::diff::{DiffEngine, ChangeType};
 use crate::commands::route::MappingRule;
-use sea_orm::{EntityTrait, ModelTrait};
+use sea_orm::EntityTrait;
 
 pub struct SyncEngine;
 
+#[allow(dead_code)]
 #[derive(Debug)]
 pub struct SyncResult {
     pub success_count: usize,

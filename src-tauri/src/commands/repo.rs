@@ -1,9 +1,9 @@
 use crate::database::entities::{repo_groups, repositories};
 use crate::database::manager::DatabaseManager;
-use sea_orm::{ActiveModelTrait, EntityTrait, Set, QueryOrder};
-use tauri::{State};
+use sea_orm::{ActiveModelTrait, EntityTrait, QueryOrder, Set};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
+use tauri::State;
 use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -22,36 +22,63 @@ pub struct GroupNode {
     pub repos: Vec<RepoNode>,
 }
 
-#[tauri::command]
-pub async fn create_repo_group(name: String, parent_id: Option<String>, state: State<'_, DatabaseManager>) -> Result<(), String> {
+#[tauri::command(rename_all = "snake_case")]
+pub async fn create_repo_group(
+    name: String,
+    parent_id: Option<String>,
+    state: State<'_, DatabaseManager>,
+) -> Result<(), String> {
+    println!(
+        "[create_repo_group] Received: name={}, parent_id={:?}",
+        name, parent_id
+    );
+
     let db = &state.connection;
     let id = Uuid::new_v4().to_string();
 
     let active = repo_groups::ActiveModel {
-        id: Set(id),
-        name: Set(name),
-        parent_id: Set(parent_id),
-        sort_order: Set(0), // Default sort order
+        id: Set(id.clone()),
+        name: Set(name.clone()),
+        parent_id: Set(parent_id.clone()),
+        sort_order: Set(0),
     };
 
+    println!(
+        "[create_repo_group] Inserting group with id={}, name={}, parent_id={:?}",
+        id, name, parent_id
+    );
     active.insert(db).await.map_err(|e| e.to_string())?;
     Ok(())
 }
 
 #[tauri::command]
-pub async fn delete_repo_group(id: String, state: State<'_, DatabaseManager>) -> Result<(), String> {
+pub async fn delete_repo_group(
+    id: String,
+    state: State<'_, DatabaseManager>,
+) -> Result<(), String> {
     let db = &state.connection;
     // SeaORM Cascade Delete should handle children if configured in DB,
     // but code-first migration might rely on logical deletion or explicit checks.
     // For now, simple delete.
-    repo_groups::Entity::delete_by_id(id).exec(db).await.map_err(|e| e.to_string())?;
+    repo_groups::Entity::delete_by_id(id)
+        .exec(db)
+        .await
+        .map_err(|e| e.to_string())?;
     Ok(())
 }
 
-#[tauri::command]
-pub async fn update_repo_group(id: String, name: String, parent_id: Option<String>, state: State<'_, DatabaseManager>) -> Result<(), String> {
+#[tauri::command(rename_all = "snake_case")]
+pub async fn update_repo_group(
+    id: String,
+    name: String,
+    parent_id: Option<String>,
+    state: State<'_, DatabaseManager>,
+) -> Result<(), String> {
     let db = &state.connection;
-    let existing = repo_groups::Entity::find_by_id(&id).one(db).await.map_err(|e| e.to_string())?;
+    let existing = repo_groups::Entity::find_by_id(&id)
+        .one(db)
+        .await
+        .map_err(|e| e.to_string())?;
 
     if let Some(model) = existing {
         let mut active: repo_groups::ActiveModel = model.into();
@@ -62,13 +89,13 @@ pub async fn update_repo_group(id: String, name: String, parent_id: Option<Strin
     Ok(())
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub async fn add_repository(
     name: String,
     path: String,
     url: Option<String>,
     group_id: Option<String>,
-    state: State<'_, DatabaseManager>
+    state: State<'_, DatabaseManager>,
 ) -> Result<(), String> {
     // Validate Git Path
     let repo_path = Path::new(&path);
@@ -78,7 +105,7 @@ pub async fn add_repository(
 
     // Check if it's a git repo
     match git2::Repository::open(repo_path) {
-        Ok(_) => {},
+        Ok(_) => {}
         Err(_) => return Err("Invalid git repository".to_string()),
     }
 
@@ -100,17 +127,20 @@ pub async fn add_repository(
     Ok(())
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub async fn update_repository(
     id: String,
     name: String,
     path: String,
     url: Option<String>,
     group_id: Option<String>,
-    state: State<'_, DatabaseManager>
+    state: State<'_, DatabaseManager>,
 ) -> Result<(), String> {
     let db = &state.connection;
-    let existing = repositories::Entity::find_by_id(&id).one(db).await.map_err(|e| e.to_string())?;
+    let existing = repositories::Entity::find_by_id(&id)
+        .one(db)
+        .await
+        .map_err(|e| e.to_string())?;
 
     if let Some(model) = existing {
         let mut active: repositories::ActiveModel = model.into();
@@ -124,9 +154,60 @@ pub async fn update_repository(
 }
 
 #[tauri::command]
-pub async fn delete_repository(id: String, state: State<'_, DatabaseManager>) -> Result<(), String> {
+pub async fn delete_repository(
+    id: String,
+    state: State<'_, DatabaseManager>,
+) -> Result<(), String> {
     let db = &state.connection;
-    repositories::Entity::delete_by_id(id).exec(db).await.map_err(|e| e.to_string())?;
+    repositories::Entity::delete_by_id(id)
+        .exec(db)
+        .await
+        .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub async fn update_repository_group(
+    id: String,
+    group_id: Option<String>,
+    state: State<'_, DatabaseManager>,
+) -> Result<(), String> {
+    let db = &state.connection;
+    let existing = repositories::Entity::find_by_id(&id)
+        .one(db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if let Some(model) = existing {
+        let mut active: repositories::ActiveModel = model.into();
+        active.group_id = Set(group_id);
+        active.update(db).await.map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub async fn update_repo_group_parent(
+    id: String,
+    parent_id: Option<String>,
+    state: State<'_, DatabaseManager>,
+) -> Result<(), String> {
+    let db = &state.connection;
+    // Prevent setting parent to self
+    if parent_id.as_ref() == Some(&id) {
+        return Err("Cannot set group as its own parent".to_string());
+    }
+
+    let existing = repo_groups::Entity::find_by_id(&id)
+        .one(db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if let Some(model) = existing {
+        let mut active: repo_groups::ActiveModel = model.into();
+        active.parent_id = Set(parent_id);
+        active.update(db).await.map_err(|e| e.to_string())?;
+    }
     Ok(())
 }
 
@@ -136,9 +217,14 @@ pub async fn list_repo_tree(state: State<'_, DatabaseManager>) -> Result<Vec<Gro
 
     let all_groups = repo_groups::Entity::find()
         .order_by_asc(repo_groups::Column::SortOrder)
-        .all(db).await.map_err(|e| e.to_string())?;
+        .all(db)
+        .await
+        .map_err(|e| e.to_string())?;
 
-    let all_repos = repositories::Entity::find().all(db).await.map_err(|e| e.to_string())?;
+    let all_repos = repositories::Entity::find()
+        .all(db)
+        .await
+        .map_err(|e| e.to_string())?;
 
     // Build Tree (Recursive or Iterative)
     // Simplified approach: Return root nodes (parent_id is null) and recursively fill children
@@ -157,13 +243,29 @@ pub async fn list_repo_tree(state: State<'_, DatabaseManager>) -> Result<Vec<Gro
     Ok(build_tree(&all_groups, &all_repos, None))
 }
 
-fn build_tree(groups: &[repo_groups::Model], repos: &[repositories::Model], parent_id: Option<&String>) -> Vec<GroupNode> {
+fn build_tree(
+    groups: &[repo_groups::Model],
+    repos: &[repositories::Model],
+    parent_id: Option<&String>,
+) -> Vec<GroupNode> {
     let mut nodes = Vec::new();
 
+    println!(
+        "[build_tree] Looking for groups with parent_id: {:?}",
+        parent_id
+    );
+
     for group in groups {
+        println!(
+            "[build_tree] Checking group '{}' (id: {}) with parent_id: {:?}",
+            group.name, group.id, group.parent_id
+        );
+
         if group.parent_id.as_ref() == parent_id {
+            println!("[build_tree] MATCHED! Adding '{}' to tree", group.name);
             let children = build_tree(groups, repos, Some(&group.id));
-            let group_repos: Vec<RepoNode> = repos.iter()
+            let group_repos: Vec<RepoNode> = repos
+                .iter()
                 .filter(|r| r.group_id.as_ref() == Some(&group.id))
                 .map(|r| RepoNode {
                     id: r.id.clone(),
@@ -202,7 +304,8 @@ fn build_tree(groups: &[repo_groups::Model], repos: &[repositories::Model], pare
     // For root level (parent_id is None), also append repositories that have no group_id
     if parent_id.is_none() {
         // Find root repos
-        let root_repos: Vec<RepoNode> = repos.iter()
+        let root_repos: Vec<RepoNode> = repos
+            .iter()
             .filter(|r| r.group_id.is_none())
             .map(|r| RepoNode {
                 id: r.id.clone(),

@@ -45,7 +45,12 @@
             </div>
             <div class="grid gap-2">
                 <label class="text-sm font-medium">{{ $t('repo.form.path.label') }}</label>
-                <input v-model="localRepo.path" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                <div class="flex gap-2">
+                    <input v-model="localRepo.path" class="flex-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                    <button type="button" @click="browsePath" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-3">
+                        Browse
+                    </button>
+                </div>
             </div>
              <div class="flex justify-end gap-2 mt-4">
                 <button @click="deleteRepo" class="bg-destructive text-destructive-foreground hover:bg-destructive/90 px-4 py-2 rounded text-sm font-medium">
@@ -62,8 +67,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, defineProps, defineEmits } from 'vue';
+import { ref, watch } from 'vue';
 import { Package } from 'lucide-vue-next';
+import { open } from '@tauri-apps/plugin-dialog';
 
 const props = defineProps<{
   repo: any;
@@ -92,4 +98,15 @@ const deleteRepo = () => {
         emit('delete', props.repo.id);
     }
 }
+
+const browsePath = async () => {
+    const selected = await open({
+        directory: true,
+        multiple: false,
+        title: 'Select Repository Path'
+    });
+    if (selected && typeof selected === 'string') {
+        localRepo.value.path = selected;
+    }
+};
 </script>
