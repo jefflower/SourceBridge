@@ -30,7 +30,7 @@
 import { ref } from 'vue';
 import DraggableTreeNode from '@/components/common/DraggableTreeNode.vue';
 
-const props = defineProps<{
+defineProps<{
   treeData: any[];
 }>();
 

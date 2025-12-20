@@ -64,7 +64,19 @@ const messages = {
                 label: 'Group'
             }
         },
-        no_repos: 'Select a repository to view details or add a new one.'
+        no_repos: 'Select a repository to view details or add a new one.',
+        scan: {
+            title: 'Scan & Import Repositories',
+            desc: 'Select a folder to recursively scan for git repositories.',
+        }
+    },
+    common: {
+        browse: 'Browse',
+        scan: 'Scan',
+        scanning: 'Scanning...',
+        cancel: 'Cancel',
+        import: 'Import Selected',
+        importing: 'Importing...',
     },
     route: {
         group: {
@@ -204,7 +216,19 @@ const messages = {
                 label: '分组'
             }
         },
-        no_repos: '请选择一个仓库查看详情，或添加新仓库。'
+        no_repos: '请选择一个仓库查看详情，或添加新仓库。',
+        scan: {
+            title: '扫描导入仓库',
+            desc: '选择一个文件夹递归扫描 Git 仓库。',
+        }
+    },
+    common: {
+        browse: '浏览',
+        scan: '扫描',
+        scanning: '扫描中...',
+        cancel: '取消',
+        import: '导入选中',
+        importing: '导入中...',
     },
     route: {
         group: {
