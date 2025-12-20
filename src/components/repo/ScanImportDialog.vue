@@ -2,9 +2,9 @@
   <Dialog :open="isOpen" @update:open="setOpen">
     <DialogContent class="sm:max-w-[600px] h-[80vh] flex flex-col">
       <DialogHeader>
-        <DialogTitle>{{ $t('repo.scan.title', 'Scan & Import Repositories') }}</DialogTitle>
+        <DialogTitle>{{ $t('repo.scan.title') }}</DialogTitle>
         <DialogDescription>
-          {{ $t('repo.scan.desc', 'Select a folder to recursively scan for git repositories.') }}
+          {{ $t('repo.scan.desc') }}
         </DialogDescription>
       </DialogHeader>
 
@@ -12,14 +12,14 @@
         <!-- Folder Selection -->
         <div class="flex gap-2 items-end">
           <div class="flex-1 gap-1.5 grid">
-            <Label for="scanPath">Root Path</Label>
-            <Input id="scanPath" v-model="rootPath" readonly placeholder="Click Browse to select folder" />
+            <Label for="scanPath">{{ $t('scan.root_path') }}</Label>
+            <Input id="scanPath" v-model="rootPath" readonly :placeholder="$t('scan.click_browse')" />
           </div>
           <Button @click="selectFolder" variant="outline">
-            {{ $t('common.browse', 'Browse') }}
+            {{ $t('common.browse') }}
           </Button>
           <Button @click="startScan" :disabled="!rootPath || isScanning || isImporting">
-            {{ isScanning ? $t('common.scanning', 'Scanning...') : $t('common.scan', 'Scan') }}
+            {{ isScanning ? $t('common.scanning') : $t('common.scan') }}
           </Button>
         </div>
 
@@ -32,21 +32,21 @@
             <div class="p-2 border-b bg-muted/20 flex items-center justify-between text-xs">
                 <div class="flex items-center gap-2">
                     <Checkbox :checked="allChecked" @update:checked="toggleAll" id="selectAll" />
-                    <label for="selectAll" class="cursor-pointer font-medium">Found: {{ scannedRepos.length }}</label>
+                    <label for="selectAll" class="cursor-pointer font-medium">{{ $t('scan.found', { count: scannedRepos.length }) }}</label>
                 </div>
-                <span class="text-muted-foreground">Selected: {{ selectedCount }}</span>
+                <span class="text-muted-foreground">{{ $t('scan.selected', { count: selectedCount }) }}</span>
             </div>
 
             <div class="flex-1 overflow-y-auto p-2 space-y-1">
                 <div v-for="(repo, index) in scannedRepos" :key="index" class="flex items-center gap-2 p-2 hover:bg-muted rounded text-sm">
-                     <Checkbox :checked="repo.checked" @update:checked="(v) => repo.checked = v" />
+                     <Checkbox :checked="repo.checked" @update:checked="(v: boolean) => repo.checked = v" />
                      <div class="flex-1 min-w-0">
                          <div class="font-medium truncate" :title="repo.name">{{ repo.name }}</div>
                          <div class="text-xs text-muted-foreground truncate" :title="repo.relative_path">{{ repo.relative_path }}</div>
                      </div>
                 </div>
                 <div v-if="scannedRepos.length === 0 && !isScanning && hasScanned" class="text-center py-8 text-muted-foreground">
-                    No git repositories found.
+                    {{ $t('scan.no_results') }}
                 </div>
             </div>
         </div>

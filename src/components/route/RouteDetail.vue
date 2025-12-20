@@ -19,7 +19,7 @@
         class="px-4 py-3 text-sm font-medium border-b-2 transition-colors"
         :class="currentTab === tab.value ? 'border-primary text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground'"
       >
-        {{ tab.label }}
+        {{ $t(tab.label) }}
       </button>
     </div>
 
@@ -35,14 +35,14 @@
          <div class="grid gap-2">
             <label class="text-sm font-medium">{{ $t('route.form.source.label') }}</label>
             <select v-model="localRoute.source_id" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                <option :value="null">Select Source</option>
+                <option :value="null">{{ $t('route.form.source.label') }}</option>
                 <option v-for="repo in repos" :key="repo.id" :value="repo.id">{{ repo.name }}</option>
             </select>
          </div>
          <div class="grid gap-2">
             <label class="text-sm font-medium">{{ $t('route.form.target.label') }}</label>
             <select v-model="localRoute.target_id" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                <option :value="null">Select Target</option>
+                <option :value="null">{{ $t('route.form.target.label') }}</option>
                 <option v-for="repo in repos" :key="repo.id" :value="repo.id">{{ repo.name }}</option>
             </select>
          </div>
@@ -79,11 +79,11 @@
                 <tbody>
                     <tr v-for="(rule, index) in mappings" :key="index" class="border-t">
                         <td class="px-4 py-2">
-                            <input v-model="rule.source" class="w-full bg-transparent border-none focus:outline-none" placeholder="src/**/*.ts" />
+                            <input v-model="rule.source" class="w-full bg-transparent border-none focus:outline-none" :placeholder="$t('route.mapping.placeholder.source')" />
                         </td>
                         <td class="px-4 py-2 text-center text-muted-foreground">➜</td>
                         <td class="px-4 py-2">
-                            <input v-model="rule.target" class="w-full bg-transparent border-none focus:outline-none" placeholder="dest/" />
+                            <input v-model="rule.target" class="w-full bg-transparent border-none focus:outline-none" :placeholder="$t('route.mapping.placeholder.target')" />
                         </td>
                         <td class="px-4 py-2">
                             <select v-model="rule.mode" class="bg-transparent border-none focus:outline-none">
@@ -146,8 +146,8 @@ const props = defineProps<{
 const emit = defineEmits(['update', 'delete']);
 
 const tabs = [
-  { label: 'Info', value: 'info' },
-  { label: 'Mappings', value: 'mappings' },
+  { label: 'route.tabs.info', value: 'info' },
+  { label: 'route.tabs.mappings', value: 'mappings' },
 ];
 
 const currentTab = ref('info');

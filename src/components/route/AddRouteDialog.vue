@@ -33,10 +33,10 @@
 
       <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
          <button @click="close" class="mt-2 sm:mt-0 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
-            Cancel
+            {{ $t('common.cancel') }}
          </button>
          <button @click="submit" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
-            Create
+            {{ $t('actions.save') }}
          </button>
       </div>
     </div>

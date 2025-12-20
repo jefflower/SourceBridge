@@ -5,7 +5,7 @@
             <textarea
                 v-model="model.script"
                 class="w-full min-h-[100px] rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                placeholder="# Write your script here..."
+                :placeholder="$t('task.steps.script.placeholder')"
             ></textarea>
         </div>
         <div class="flex items-center gap-2">
