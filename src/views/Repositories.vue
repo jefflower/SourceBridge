@@ -5,6 +5,9 @@
       <div class="p-4 border-b flex items-center justify-between">
         <h2 class="font-semibold text-sm">{{ $t('nav.repos') }}</h2>
         <div class="flex gap-1">
+            <button @click="openScanDialog" class="p-1 hover:bg-muted rounded" :title="$t('repo.scan.title', 'Scan Import')">
+                <FolderSearch class="w-4 h-4" />
+            </button>
             <button @click="openDialog('group')" class="p-1 hover:bg-muted rounded" :title="$t('repo.group.new')">
                 <FolderPlus class="w-4 h-4" />
             </button>
@@ -18,7 +21,7 @@
       <div class="p-2 border-b">
          <div class="relative">
              <Search class="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-             <input v-model="searchQuery" placeholder="Filter..." class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 pl-8" />
+             <input v-model="searchQuery" :placeholder="$t('common.filter')" class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 pl-8" />
          </div>
       </div>
 
@@ -48,6 +51,7 @@
     </div>
 
     <AddRepoDialog ref="dialogRef" @create="handleCreate" />
+    <ScanImportDialog ref="scanDialogRef" @import-complete="handleImportComplete" />
     
     <!-- Context Menu -->
     <ContextMenu ref="contextMenuRef" :items="contextMenuItems" @select="handleContextMenuAction" />
@@ -57,10 +61,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
-import { FolderPlus, Plus, Search, PackageOpen, Trash2, FolderPlus as NewSubgroup, PackagePlus } from 'lucide-vue-next';
+import { FolderPlus, Plus, Search, PackageOpen, Trash2, FolderPlus as NewSubgroup, PackagePlus, FolderSearch } from 'lucide-vue-next';
 import RepoTree from '@/components/repo/RepoTree.vue';
 import RepoDetail from '@/components/repo/RepoDetail.vue';
 import AddRepoDialog from '@/components/repo/AddRepoDialog.vue';
+import ScanImportDialog from '@/components/repo/ScanImportDialog.vue';
 import ContextMenu from '@/components/common/ContextMenu.vue';
 import type { MenuItem } from '@/components/common/ContextMenu.vue';
 
@@ -68,6 +73,7 @@ const treeData = ref<any[]>([]);
 const searchQuery = ref('');
 const selectedRepo = ref<any>(null);
 const dialogRef = ref<any>(null);
+const scanDialogRef = ref<any>(null);
 const contextMenuRef = ref<any>(null);
 const contextMenuNode = ref<any>(null);
 
@@ -155,6 +161,15 @@ const openDialog = (type: 'repo' | 'group') => {
     dialogRef.value?.open(type);
 };
 
+const openScanDialog = () => {
+    scanDialogRef.value?.open();
+};
+
+const handleImportComplete = async (msg: string) => {
+    console.log(msg);
+    await loadTree();
+};
+
 const handleCreate = async (payload: any) => {
     console.log('[handleCreate] Payload:', payload);
     try {
@@ -230,4 +245,3 @@ const handleMove = async (data: { draggedId: string; draggedType: string; target
     }
 };
 </script>
-

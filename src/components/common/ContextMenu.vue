@@ -37,7 +37,7 @@ export interface MenuItem {
   danger?: boolean;
 }
 
-const props = defineProps<{
+defineProps<{
   items: MenuItem[];
 }>();
 
