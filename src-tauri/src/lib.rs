@@ -49,7 +49,9 @@ pub fn run() {
             commands::task::delete_task,
             commands::task::get_task_logs,
             commands::diff::preview_route_diff,
-            commands::diff::get_file_diff
+            commands::diff::get_file_diff,
+            commands::repo_scan::scan_local_repos,
+            commands::repo_scan::import_scanned_repos
         ])
         .setup(|app| {
             let app_handle = app.handle();
