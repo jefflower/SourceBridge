@@ -65,6 +65,11 @@
       "scan": {
           "title": "Scan & Import Repositories",
           "desc": "Select a folder to recursively scan for git repositories."
+      },
+      "branch": {
+          "label": "Branch",
+          "switch_success": "Branch switched successfully",
+          "switch_failed": "Failed to switch branch"
       }
   },
   "common": {

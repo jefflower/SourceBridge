@@ -51,7 +51,9 @@ pub fn run() {
             commands::diff::preview_route_diff,
             commands::diff::get_file_diff,
             commands::repo_scan::scan_local_repos,
-            commands::repo_scan::import_scanned_repos
+            commands::repo_scan::import_scanned_repos,
+            commands::git_ops::get_git_branches,
+            commands::git_ops::switch_git_branch
         ])
         .setup(|app| {
             let app_handle = app.handle();

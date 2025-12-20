@@ -31,9 +31,27 @@
     <div class="flex-1 overflow-auto p-6">
       <div v-if="currentTab === 'overview'">
         <div class="rounded-lg border bg-card text-card-foreground shadow-sm p-6">
-          <h3 class="text-lg font-semibold mb-2">Git Status</h3>
-          <p class="text-muted-foreground">Branch: <span class="text-foreground font-medium">main</span></p>
-          <p class="text-muted-foreground">Last Commit: <span class="font-mono text-xs">a1b2c3d</span> - Initial commit</p>
+          <h3 class="text-lg font-semibold mb-4">Git Status</h3>
+
+          <div class="grid gap-4 max-w-md">
+              <div class="flex items-center justify-between">
+                  <span class="text-sm font-medium text-muted-foreground">{{ $t('repo.branch.label', 'Branch') }}</span>
+                  <div class="flex items-center gap-2">
+                      <select
+                        v-model="currentBranch"
+                        @change="onBranchChange"
+                        :disabled="isLoadingBranches"
+                        class="h-9 w-48 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                          <option v-for="b in branches" :key="b.name" :value="b.name">
+                              {{ b.name }} {{ b.is_remote ? '(Remote)' : '' }}
+                          </option>
+                      </select>
+                      <Loader2 v-if="isLoadingBranches" class="w-4 h-4 animate-spin text-muted-foreground" />
+                  </div>
+              </div>
+              <!-- Placeholder for commit info, could be expanded later -->
+          </div>
         </div>
       </div>
 
@@ -67,9 +85,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { Package } from 'lucide-vue-next';
+import { ref, watch, onMounted } from 'vue';
+import { Package, Loader2 } from 'lucide-vue-next';
 import { open } from '@tauri-apps/plugin-dialog';
+import { invoke } from '@tauri-apps/api/core';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps<{
   repo: any;
@@ -84,10 +106,44 @@ const tabs = [
 
 const currentTab = ref('overview');
 const localRepo = ref({ ...props.repo });
+const branches = ref<any[]>([]);
+const currentBranch = ref('');
+const isLoadingBranches = ref(false);
+
+const loadBranches = async () => {
+    if (!props.repo.path) return;
+    isLoadingBranches.value = true;
+    try {
+        const res = await invoke('get_git_branches', { path: props.repo.path });
+        branches.value = res as any[];
+        const active = branches.value.find((b: any) => b.is_current);
+        if (active) currentBranch.value = active.name;
+    } catch (e) {
+        console.error('Failed to load branches:', e);
+    } finally {
+        isLoadingBranches.value = false;
+    }
+};
+
+const onBranchChange = async () => {
+    if (!currentBranch.value) return;
+    try {
+        await invoke('switch_git_branch', { path: props.repo.path, branch: currentBranch.value });
+        alert(t('repo.branch.switch_success'));
+    } catch (e) {
+        console.error('Failed to switch branch:', e);
+        alert(`${t('repo.branch.switch_failed')}: ${e}`);
+    } finally {
+        await loadBranches();
+    }
+};
 
 watch(() => props.repo, (newVal) => {
     localRepo.value = { ...newVal };
-});
+    if (newVal.path) {
+        loadBranches();
+    }
+}, { immediate: true });
 
 const save = () => {
     emit('update', localRepo.value);

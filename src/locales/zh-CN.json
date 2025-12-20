@@ -65,6 +65,11 @@
         "scan": {
             "title": "扫描导入仓库",
             "desc": "选择一个文件夹递归扫描 Git 仓库。"
+        },
+        "branch": {
+            "label": "分支",
+            "switch_success": "分支切换成功",
+            "switch_failed": "分支切换失败"
         }
     },
     "common": {
