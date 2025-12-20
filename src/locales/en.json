@@ -125,6 +125,8 @@
           }
       },
       "mapping": {
+          "test_desc": "Enter relative path from source repo (e.g. src/main.ts) to verify.",
+          "add_this_path": "Create Rule for Path",
           "source": "Source Path (Glob)",
           "target": "Target Path",
           "mode": "Mode",

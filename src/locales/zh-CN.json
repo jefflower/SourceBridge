@@ -139,7 +139,9 @@
             "placeholder": {
                 "source": "src/**/*.ts",
                 "target": "dest/"
-            }
+            },
+            "test_desc": "输入源仓库中的相对路径（例如 src/main.ts）验证规则匹配。",
+            "add_this_path": "为此路径创建规则"
         },
         "test": {
             "match": "匹配规则 #{index}: {target}",
