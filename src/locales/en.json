@@ -74,7 +74,8 @@
       "cancel": "Cancel",
       "import": "Import Selected",
       "importing": "Importing...",
-      "filter": "Filter..."
+      "filter": "Filter...",
+      "no_matches": "No matching results"
   },
   "route": {
       "group": {

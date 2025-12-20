@@ -61,7 +61,7 @@
 
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { Folder, Package, Waypoints, ChevronRight, ChevronDown, GripVertical } from 'lucide-vue-next';
 
 defineOptions({
@@ -76,6 +76,13 @@ const props = defineProps<{
 const emit = defineEmits(['select', 'context-menu', 'move']);
 
 const isExpanded = ref(true);
+
+// Watch for external expansion control (e.g. from search filtering)
+watch(() => props.node.isExpanded, (newVal) => {
+    if (newVal !== undefined) {
+        isExpanded.value = newVal;
+    }
+}, { immediate: true });
 const isDragOver = ref(false);
 const dragCounter = ref(0);
 
