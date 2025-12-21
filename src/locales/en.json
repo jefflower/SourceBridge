@@ -149,6 +149,9 @@
       },
       "no_routes": "Select a route to configure mappings.",
       "diff": {
+          "title": "Sync Preview",
+          "exec_sync": "Confirm & Sync",
+          "file_list": "Changed Files",
           "loading": "Scanning files...",
           "no_changes": "No changes detected.",
           "view": {

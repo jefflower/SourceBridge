@@ -43,6 +43,7 @@ pub fn run() {
             commands::route::list_route_tree,
             commands::route::get_route_details,
             commands::route::test_route_mapping,
+            commands::route::sync_route,
             commands::task::create_task,
             commands::task::run_task_now,
             commands::task::list_tasks,

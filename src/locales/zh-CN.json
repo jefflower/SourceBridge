@@ -149,6 +149,9 @@
         },
         "no_routes": "请选择一条路线配置映射规则。",
         "diff": {
+            "title": "同步预览",
+            "exec_sync": "确认并开始同步",
+            "file_list": "变更文件列表",
             "loading": "扫描文件中...",
             "no_changes": "未检测到变更。",
             "view": {
