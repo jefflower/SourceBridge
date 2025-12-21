@@ -21,7 +21,7 @@
             @logs="logConsole?.open(task)"
         />
         <div v-if="tasks.length === 0" class="col-span-full flex flex-col items-center justify-center text-muted-foreground min-h-[200px]">
-            <p>No tasks found. Create one to get started.</p>
+            <p>{{ $t('task.empty') }}</p>
         </div>
     </div>
 
@@ -97,7 +97,8 @@ const runTask = async (task: any) => {
 };
 
 const deleteTask = async (task: any) => {
-    if (confirm('Are you sure?')) {
+    // Ideally use 'ask' from plugin-dialog instead of confirm
+    if (confirm('Are you sure?')) { // TODO: Use i18n confirm
         try {
             await invoke('delete_task', { id: task.id });
             await loadTasks();

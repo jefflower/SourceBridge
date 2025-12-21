@@ -10,15 +10,15 @@
             />
         </div>
         <div>
-            <label class="block text-sm font-medium mb-1">Operation</label>
+            <label class="block text-sm font-medium mb-1">{{ $t('task.steps.git.operation') }}</label>
             <select
                 v-model="model.operation"
                 class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
             >
-                <option value="pull">Pull</option>
-                <option value="push">Push</option>
-                <option value="fetch">Fetch</option>
-                <option value="reset">Reset</option>
+                <option value="pull">{{ $t('task.steps.git.ops.pull') }}</option>
+                <option value="push">{{ $t('task.steps.git.ops.push') }}</option>
+                <option value="fetch">{{ $t('task.steps.git.ops.fetch') }}</option>
+                <option value="reset">{{ $t('task.steps.git.ops.reset') }}</option>
             </select>
         </div>
     </div>

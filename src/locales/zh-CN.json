@@ -183,11 +183,35 @@
         "welcome": "欢迎使用 SourceBridge。"
     },
     "task": {
+        "new": "新建任务",
+        "steps_title": "执行步骤",
+        "empty": "暂无任务。请创建一个。",
+        "status": {
+            "pending": "待执行",
+            "running": "执行中",
+            "success": "成功",
+            "failed": "失败"
+        },
+        "actions": {
+            "run": "立即执行",
+            "logs": "查看日志",
+            "close": "关闭"
+        },
+        "step_types": {
+            "script": "执行脚本",
+            "git": "Git 操作",
+            "sync": "同步路线"
+        },
+        "trigger": {
+            "manual": "手动触发"
+        },
         "form": {
             "name": {
                 "placeholder": "任务名称"
             },
             "schedule": {
+                "enable": "启用定时计划",
+                "cron": "Cron 表达式",
                 "placeholder": "Cron 表达式 (例如 * * * * *)"
             }
         },
@@ -196,9 +220,18 @@
                 "route_id": "路线 ID"
             },
             "git": {
-                "repo_id": "仓库 ID"
+                "repo_id": "仓库 ID",
+                "operation": "操作类型",
+                "ops": {
+                    "pull": "拉取 (Pull)",
+                    "push": "推送 (Push)",
+                    "fetch": "获取 (Fetch)",
+                    "reset": "重置 (Reset)"
+                }
             },
             "script": {
+                "label": "脚本内容",
+                "continue_on_error": "出错时继续",
                 "placeholder": "# 在此编写脚本..."
             }
         }

@@ -183,11 +183,35 @@
       "welcome": "Welcome to SourceBridge."
   },
   "task": {
+        "new": "New Task",
+        "steps_title": "Steps",
+        "empty": "No tasks found. Create one to get started.",
+        "status": {
+            "pending": "Pending",
+            "running": "Running",
+            "success": "Success",
+            "failed": "Failed"
+        },
+        "actions": {
+            "run": "Run Now",
+            "logs": "View Logs",
+            "close": "Close"
+        },
+        "step_types": {
+            "script": "Run Script",
+            "git": "Git Operation",
+            "sync": "Sync Route"
+        },
+        "trigger": {
+            "manual": "Manual Trigger"
+        },
       "form": {
           "name": {
               "placeholder": "Task Name"
           },
           "schedule": {
+                "enable": "Enable Schedule",
+                "cron": "Cron Expression",
               "placeholder": "Cron Expression (e.g. * * * * *)"
           }
       },
@@ -196,9 +220,18 @@
               "route_id": "Route ID"
           },
           "git": {
-              "repo_id": "Repository ID"
+                "repo_id": "Repository ID",
+                "operation": "Operation",
+                "ops": {
+                    "pull": "Pull",
+                    "push": "Push",
+                    "fetch": "Fetch",
+                    "reset": "Reset"
+                }
           },
           "script": {
+                "label": "Script Content",
+                "continue_on_error": "Continue on Error",
               "placeholder": "# Write your script here..."
           }
       }

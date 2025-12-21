@@ -4,7 +4,7 @@
     <div class="border-b p-4 flex items-center justify-between">
       <input v-model="localTask.name" class="font-bold text-lg bg-transparent border-none focus:outline-none" :placeholder="$t('task.form.name.placeholder')" />
       <div class="flex gap-2">
-        <button @click="$emit('close')" class="px-3 py-1 text-sm border rounded hover:bg-muted">Close</button>
+        <button @click="$emit('close')" class="px-3 py-1 text-sm border rounded hover:bg-muted">{{ $t('task.actions.close') }}</button>
         <button @click="save" class="px-3 py-1 text-sm bg-primary text-primary-foreground rounded hover:bg-primary/90">{{ $t('actions.save') }}</button>
       </div>
     </div>
@@ -29,7 +29,7 @@
 
         <!-- Right: Pipeline -->
         <div class="lg:col-span-2 border rounded-lg p-4 bg-muted/10 flex flex-col">
-            <h3 class="font-semibold mb-4">{{ $t('task.steps') }}</h3>
+            <h3 class="font-semibold mb-4">{{ $t('task.steps_title') }}</h3>
 
             <div class="flex-1 space-y-4 overflow-y-auto min-h-[300px]">
                 <div v-for="(step, index) in steps" :key="index" class="border rounded bg-card p-4 relative group">
