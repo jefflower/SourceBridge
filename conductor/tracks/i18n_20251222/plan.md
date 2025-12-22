@@ -23,7 +23,7 @@
 - [x] Task: 编写测试，验证 `ScanImportDialog.vue` 中的所有文本是否可以国际化。 [76625d6]
 - [x] Task: 更新 `ScanImportDialog.vue` 以翻译所有静态文本。 [29c848e]
 - [x] Task: 编写测试，验证 `DiffViewerModal.vue` 中的标题和按钮是否可以国际化。 [05c2dd6]
-- [ ] Task: 更新 `DiffViewerModal.vue` 以翻译所有静态文本。
+- [x] Task: 更新 `DiffViewerModal.vue` 以翻译所有静态文本。 [0b69f96]
 - [ ] Task: Conductor - User Manual Verification '对话框和表单国际化' (Protocol in workflow.md)
 
 ## Phase 3: 视图和详情页国际化
