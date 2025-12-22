@@ -18,7 +18,7 @@
 
 此阶段专注于所有对话框、表单和动态消息的国际化。
 
-- [ ] Task: 编写测试，验证 `AddRepoDialog.vue` 和 `AddRouteDialog.vue` 中的表单字段、标签和按钮是否可以国际化。
+- [x] Task: 编写测试，验证 `AddRepoDialog.vue` 和 `AddRouteDialog.vue` 中的表单字段、标签和按钮是否可以国际化。 [f293ed8]
 - [ ] Task: 更新 `AddRepoDialog.vue` 和 `AddRouteDialog.vue` 以翻译所有静态文本。
 - [ ] Task: 编写测试，验证 `ScanImportDialog.vue` 中的所有文本是否可以国际化。
 - [ ] Task: 更新 `ScanImportDialog.vue` 以翻译所有静态文本。
