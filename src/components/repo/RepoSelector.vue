@@ -127,7 +127,7 @@ onUnmounted(() => {
                 <span class="truncate font-medium">{{ selectedRepo.name }}</span>
                 <span v-if="selectedRepo.groupPath" class="text-[10px] text-muted-foreground truncate">{{ selectedRepo.groupPath }}</span>
             </div>
-            <span v-else class="text-muted-foreground">{{ placeholder || '选择仓库...' }}</span>
+            <span v-else class="text-muted-foreground">{{ placeholder || $t('repo.select', 'Select a repository...') }}</span>
         </div>
         <ChevronDown class="h-4 w-4 opacity-50 flex-shrink-0" />
     </div>
@@ -157,7 +157,7 @@ onUnmounted(() => {
                     class="hover:text-primary transition-colors hover:underline px-1 py-0.5 rounded"
                     :class="idx === breadcrumbs.length - 1 ? 'font-bold text-foreground' : 'text-muted-foreground'"
                 >
-                    {{ crumb.name }}
+                    {{ crumb.name === 'Root' ? $t('common.root', 'Root') : crumb.name }}
                 </button>
             </template>
         </div>
@@ -167,7 +167,7 @@ onUnmounted(() => {
             <!-- Search Results Mode -->
             <template v-if="searchQuery">
                 <div v-if="filteredResults && filteredResults.length === 0" class="py-6 text-center text-sm text-muted-foreground">
-                    未找到匹配项
+                    {{ $t('common.no_matches', 'No matches found') }}
                 </div>
                 <div 
                     v-for="repo in filteredResults" 
@@ -200,7 +200,7 @@ onUnmounted(() => {
 
                 <!-- Repositories -->
                 <div v-if="currentFolder.repos.length === 0 && Object.keys(currentFolder.children).length === 0" class="py-6 text-center text-sm text-muted-foreground italic">
-                    该目录下没有仓库
+                    {{ $t('repo.no_repos_in_dir', 'No repositories in this directory') }}
                 </div>
                 
                 <div 

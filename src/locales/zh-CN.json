@@ -37,6 +37,8 @@
         }
     },
     "repo": {
+        "select": "选择仓库...",
+        "no_repos_in_dir": "该目录下没有仓库",
         "group": {
             "new": "新建分组",
             "name": "分组名称",
@@ -86,6 +88,7 @@
         }
     },
     "common": {
+        "root": "根目录",
         "browse": "浏览",
         "scan": "扫描",
         "scanning": "扫描中...",

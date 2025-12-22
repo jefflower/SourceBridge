@@ -159,7 +159,7 @@ onUnmounted(() => {
                     class="hover:text-primary transition-colors hover:underline px-1 py-0.5 rounded"
                     :class="idx === breadcrumbs.length - 1 ? 'font-bold text-foreground' : 'text-muted-foreground'"
                 >
-                    {{ crumb.name }}
+                    {{ crumb.name === 'Root' ? $t('common.root', 'Root') : crumb.name }}
                 </button>
             </template>
         </div>
@@ -169,7 +169,7 @@ onUnmounted(() => {
             <!-- Search Results Mode -->
             <template v-if="searchQuery">
                 <div v-if="filteredResults && filteredResults.length === 0" class="py-6 text-center text-sm text-muted-foreground">
-                    {{ $t('common.no_match', '未找到匹配项') }}
+                    {{ $t('common.no_matches', '未找到匹配项') }}
                 </div>
                 <div 
                     v-for="route in filteredResults" 
