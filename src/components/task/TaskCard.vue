@@ -16,7 +16,7 @@
         <div v-if="task.cron_expression" class="flex items-center gap-1">
             <Clock class="w-3 h-3" /> {{ task.cron_expression }}
         </div>
-        <div v-else>Manual Trigger</div>
+        <div v-else>{{ $t('task.trigger.manual') }}</div>
     </div>
 
     <div class="flex justify-between items-center">
@@ -26,7 +26,7 @@
         </label>
 
         <div class="flex gap-2">
-            <button @click.stop="$emit('logs', task)" class="p-2 hover:bg-muted rounded-full text-muted-foreground" title="Logs">
+            <button @click.stop="$emit('logs', task)" class="p-2 hover:bg-muted rounded-full text-muted-foreground" :title="$t('task.actions.logs')">
                 <List class="w-4 h-4" />
             </button>
             <button @click.stop="$emit('run', task)" class="p-2 hover:bg-muted rounded-full text-primary" :title="$t('task.actions.run')">

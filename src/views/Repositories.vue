@@ -21,14 +21,21 @@
       <div class="p-2 border-b">
          <div class="relative">
              <Search class="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-             <input v-model="searchQuery" :placeholder="$t('common.filter')" class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 pl-8" />
+             <input v-model="searchQuery" :placeholder="$t('common.filter')" class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 pl-8 pr-8" />
+             <button v-if="searchQuery" @click="searchQuery = ''" class="absolute right-2 top-2.5 text-muted-foreground hover:text-foreground">
+                 <X class="h-4 w-4" />
+             </button>
          </div>
       </div>
 
       <!-- Tree -->
       <div class="flex-1 overflow-auto">
+        <div v-if="debouncedSearchQuery && filteredTreeData.length === 0" class="p-4 text-center text-sm text-muted-foreground">
+            {{ $t('common.no_matches') }}
+        </div>
         <RepoTree
-            :treeData="treeData"
+            v-else
+            :treeData="filteredTreeData"
             @select="selectNode"
             @context-menu="onContextMenu"
             @move="handleMove"
@@ -59,10 +66,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
 import { ask } from '@tauri-apps/plugin-dialog';
-import { FolderPlus, Plus, Search, PackageOpen, Trash2, FolderPlus as NewSubgroup, PackagePlus, FolderSearch } from 'lucide-vue-next';
+import { FolderPlus, Plus, Search, PackageOpen, Trash2, FolderPlus as NewSubgroup, PackagePlus, FolderSearch, X } from 'lucide-vue-next';
 import RepoTree from '@/components/repo/RepoTree.vue';
 import RepoDetail from '@/components/repo/RepoDetail.vue';
 import AddRepoDialog from '@/components/repo/AddRepoDialog.vue';
@@ -72,11 +79,57 @@ import type { MenuItem } from '@/components/common/ContextMenu.vue';
 
 const treeData = ref<any[]>([]);
 const searchQuery = ref('');
+const debouncedSearchQuery = ref('');
 const selectedRepo = ref<any>(null);
 const dialogRef = ref<any>(null);
 const scanDialogRef = ref<any>(null);
 const contextMenuRef = ref<any>(null);
 const contextMenuNode = ref<any>(null);
+
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+watch(searchQuery, (newValue) => {
+    if (debounceTimer) clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        debouncedSearchQuery.value = newValue;
+    }, 150);
+});
+
+const filterNodes = (nodes: any[], query: string): any[] => {
+    if (!query) return nodes;
+    const lowerQuery = query.toLowerCase();
+
+    return nodes.map(node => {
+        const matches = node.name.toLowerCase().includes(lowerQuery);
+
+        const filteredChildren = node.children ? filterNodes(node.children, query) : undefined;
+        const filteredRepos = node.repos ? filterNodes(node.repos, query) : undefined;
+
+        const hasMatchingChildren = (filteredChildren && filteredChildren.length > 0) || (filteredRepos && filteredRepos.length > 0);
+
+        if (matches) {
+            // If match, keep original node (show all content)
+            // But we need to ensure we don't accidentally return the filtered arrays if we want "all".
+            // However, to keep it simple and consistent visually, usually we want to see what matched.
+            // If "Group A" matches, showing "Group A" contents is good.
+            return node;
+        }
+
+        if (hasMatchingChildren) {
+            return {
+                ...node,
+                children: filteredChildren,
+                repos: filteredRepos,
+                isExpanded: true
+            };
+        }
+
+        return null;
+    }).filter(n => n !== null);
+};
+
+const filteredTreeData = computed(() => {
+    return filterNodes(treeData.value, debouncedSearchQuery.value);
+});
 
 // Context menu items based on node type
 const contextMenuItems = computed<MenuItem[]>(() => {

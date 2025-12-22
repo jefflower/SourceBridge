@@ -257,6 +257,25 @@ pub async fn get_route_details(
     Ok(route)
 }
 
+use crate::core::sync::SyncEngine;
+
+#[tauri::command]
+pub async fn sync_route(id: String, state: State<'_, DatabaseManager>) -> Result<(), String> {
+    println!("[sync_route] Starting sync for route {}", id);
+
+    match SyncEngine::execute_sync(&id, &state).await {
+        Ok(result) => {
+            println!("[sync_route] Success. Logs:\n{}", result.logs);
+            Ok(())
+        }
+        Err(e) => {
+            let msg = format!("Sync failed: {}", e);
+            println!("[sync_route] {}", msg);
+            Err(msg)
+        }
+    }
+}
+
 #[tauri::command]
 pub async fn test_route_mapping(path: String, mappings: String) -> Result<TestMatchResult, String> {
     // mappings is JSON array of MappingRule

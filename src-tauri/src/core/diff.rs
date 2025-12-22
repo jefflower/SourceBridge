@@ -109,7 +109,51 @@ impl DiffEngine {
                 }
             }
 
-            // Check for Deleted files (in Target but not in Source matching rule) - Omitted for brevity in this iteration
+            // Check for Deleted files (in Target but not in Source matching rule)
+            // Strategy: Walk Target, if match rule but not in Source -> Deleted
+            // Note: This requires reverse mapping logic if rules are complex.
+            // For simple "copy", we can assume target structure mirrors source.
+
+            // Construct target base path for this rule
+            let target_base = if rule.target.ends_with('/') {
+                target_root.join(&rule.target)
+            } else {
+                target_root.join(&rule.target)
+            };
+
+            if target_base.exists() {
+                 for entry in WalkDir::new(&target_base) {
+                    let entry = entry?;
+                    if entry.file_type().is_file() {
+                        let relative_target = entry.path().strip_prefix(&target_base)?.to_string_lossy();
+                        // Verify if this file should have existed in source
+                        // This implies we need to match it back to source pattern.
+                        // If source pattern is src/*.ts, and we found dest/main.ts, does it correspond to src/main.ts?
+                        // Yes if we assume 1:1 mapping within the glob.
+
+                        // Check if corresponding source file exists
+                        let source_file = source_root.join(&*relative_target); // Simplified assumption for glob
+                        // Ideally we should check if 'relative_target' matches the glob if we were scanning source.
+                        // But here we are scanning target.
+
+                        if !source_file.exists() {
+                             // Double check if this file matches the intended rule scope?
+                             // If rule was src/*.ts -> dest/, and we found dest/junk.txt (which wasn't a ts file),
+                             // does it mean it was deleted from source? No, it might just be a file that shouldn't be there or ignored.
+                             // We should only mark "Deleted" if it WAS in source (conceptually) or if we want strict mirroring.
+                             // For strict mirror: anything in target not in source is deleted.
+                             // Let's assume strict mirror for this task to support "Deleted" status.
+
+                             changes.push(FileChange {
+                                path: relative_target.to_string(),
+                                change_type: ChangeType::Deleted,
+                                source_path: None,
+                                target_path: Some(entry.path().to_string_lossy().to_string()),
+                            });
+                        }
+                    }
+                 }
+            }
         }
 
         Ok(DiffSummary { changes })

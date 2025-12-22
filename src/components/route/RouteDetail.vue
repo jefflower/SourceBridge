@@ -106,17 +106,27 @@
         <!-- Test Panel -->
         <div class="mt-8 border rounded-lg p-4 bg-muted/20">
             <h4 class="font-semibold mb-2">{{ $t('route.mapping.test') }}</h4>
+            <p class="text-xs text-muted-foreground mb-2">{{ $t('route.mapping.test_desc') }}</p>
             <div class="flex gap-2">
                 <input v-model="testPath" class="flex-1 flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm" :placeholder="$t('route.mapping.test_placeholder')" />
                 <button @click="runTest" class="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-3 py-1 rounded text-sm">Check</button>
             </div>
-            <div v-if="testResult" class="mt-2 text-sm">
-                <span v-if="testResult.matched" class="text-green-600 font-medium">
-                    {{ $t('route.test.match', { index: testResult.rule_index + 1, target: testResult.target_path }) }}
-                </span>
-                <span v-else class="text-muted-foreground">
-                    {{ $t('route.test.no_match') }}
-                </span>
+            <div v-if="testResult" class="mt-2 text-sm flex items-center justify-between">
+                <div>
+                    <span v-if="testResult.matched" class="text-green-600 font-medium block">
+                        {{ $t('route.test.match', { index: testResult.rule_index + 1, target: testResult.target_path }) }}
+                    </span>
+                    <span v-else class="text-destructive font-medium block">
+                        {{ $t('route.test.no_match') }}
+                    </span>
+                </div>
+                <button
+                    v-if="!testResult.matched && testPath"
+                    @click="addPathAsRule"
+                    class="text-primary hover:underline text-xs"
+                >
+                    {{ $t('route.mapping.add_this_path') }}
+                </button>
             </div>
         </div>
       </div>
@@ -206,5 +216,18 @@ const runTest = async () => {
     } catch (e) {
         console.error(e);
     }
+};
+
+const addPathAsRule = () => {
+    if (!testPath.value) return;
+    mappings.value.push({
+        source: testPath.value,
+        target: '',
+        mode: 'copy'
+    });
+    // Clear test result or re-run? Re-running is better UX to confirm match.
+    // But backend is async.
+    // Let's just reset testResult to avoid "No Match" showing immediately after click.
+    testResult.value = null;
 };
 </script>

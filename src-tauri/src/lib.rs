@@ -43,6 +43,7 @@ pub fn run() {
             commands::route::list_route_tree,
             commands::route::get_route_details,
             commands::route::test_route_mapping,
+            commands::route::sync_route,
             commands::task::create_task,
             commands::task::run_task_now,
             commands::task::list_tasks,
@@ -51,7 +52,12 @@ pub fn run() {
             commands::diff::preview_route_diff,
             commands::diff::get_file_diff,
             commands::repo_scan::scan_local_repos,
-            commands::repo_scan::import_scanned_repos
+            commands::repo_scan::import_scanned_repos,
+            commands::git_ops::get_git_branches,
+            commands::git_ops::switch_git_branch,
+            commands::git_ops::get_git_log,
+            commands::git_ops::open_in_folder,
+            commands::git_ops::open_in_terminal
         ])
         .setup(|app| {
             let app_handle = app.handle();

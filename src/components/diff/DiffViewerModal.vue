@@ -3,13 +3,16 @@
     <div class="bg-background border rounded-lg shadow-lg w-11/12 h-5/6 flex flex-col overflow-hidden">
         <!-- Header -->
         <div class="border-b p-4 flex items-center justify-between">
-            <h2 class="font-bold text-lg">Diff Preview: {{ route?.name }}</h2>
+            <h2 class="font-bold text-lg">{{ $t('route.diff.title') }}: {{ route?.name }}</h2>
             <div class="flex gap-2">
                 <button @click="sideBySide = !sideBySide" class="px-3 py-1 text-sm border rounded hover:bg-muted">
-                    {{ sideBySide ? $t('diff.view.split') : $t('diff.view.inline') }}
+                    {{ sideBySide ? $t('route.diff.view.split') : $t('route.diff.view.inline') }}
                 </button>
-                <button @click="close" class="px-3 py-1 text-sm bg-primary text-primary-foreground rounded hover:bg-primary/90">
-                    Close
+                <button @click="confirmSync" class="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700">
+                    {{ $t('route.diff.exec_sync') }}
+                </button>
+                <button @click="close" class="px-3 py-1 text-sm border rounded hover:bg-muted">
+                    {{ $t('window.close') }}
                 </button>
             </div>
         </div>
@@ -79,6 +82,19 @@ const open = async (r: any) => {
 const close = () => {
     isOpen.value = false;
 };
+
+const confirmSync = async () => {
+    if (!route.value) return;
+    try {
+         await invoke('sync_route', { id: route.value.id });
+         // Alert or Toast
+         alert("Sync triggered successfully!");
+         close();
+    } catch (e) {
+        console.error(e);
+        alert("Sync failed: " + e);
+    }
+}
 
 const selectFile = async (file: any) => {
     selectedFile.value = file;
