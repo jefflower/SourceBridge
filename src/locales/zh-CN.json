@@ -1,4 +1,7 @@
 {
+    "app": {
+        "name": "源码之桥"
+    },
     "nav": {
         "dashboard": "仪表盘",
         "repos": "仓库管理",

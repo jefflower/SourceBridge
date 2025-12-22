@@ -5,7 +5,7 @@
     @mousedown="startDrag"
   >
     <div class="flex items-center px-4 pointer-events-none">
-      <span class="font-bold text-sm">SourceBridge</span>
+      <span class="font-bold text-sm">{{ $t('app.name') }}</span>
     </div>
     <div class="flex h-full">
       <button @click="minimize" class="px-4 hover:bg-muted transition-colors h-full flex items-center justify-center" :title="$t('window.minimize')">

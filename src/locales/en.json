@@ -1,4 +1,7 @@
 {
+    "app": {
+        "name": "SourceBridge"
+    },
     "nav": {
         "dashboard": "Dashboard",
         "repos": "Repositories",
