@@ -22,7 +22,7 @@
 - [x] Task: 更新 `AddRepoDialog.vue` 和 `AddRouteDialog.vue` 以翻译所有静态文本。 [48563c6]
 - [x] Task: 编写测试，验证 `ScanImportDialog.vue` 中的所有文本是否可以国际化。 [76625d6]
 - [x] Task: 更新 `ScanImportDialog.vue` 以翻译所有静态文本。 [29c848e]
-- [ ] Task: 编写测试，验证 `DiffViewerModal.vue` 中的标题和按钮是否可以国际化。
+- [x] Task: 编写测试，验证 `DiffViewerModal.vue` 中的标题和按钮是否可以国际化。 [05c2dd6]
 - [ ] Task: 更新 `DiffViewerModal.vue` 以翻译所有静态文本。
 - [ ] Task: Conductor - User Manual Verification '对话框和表单国际化' (Protocol in workflow.md)
 
