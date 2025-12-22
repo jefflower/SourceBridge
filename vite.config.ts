@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import vue from "@vitejs/plugin-vue";
 import path from "path";
 import monacoEditorPlugin from "vite-plugin-monaco-editor";
@@ -16,6 +16,11 @@ export default defineConfig(async () => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+
+  test: {
+    globals: true,
+    environment: 'jsdom',
   },
 
   // Vite options tailored for Tauri development and only applied in `tauri dev` or `tauri build`
