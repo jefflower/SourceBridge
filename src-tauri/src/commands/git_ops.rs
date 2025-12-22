@@ -1,7 +1,7 @@
-use git2::{BranchType, Repository, build::CheckoutBuilder, Oid};
+use chrono::{TimeZone, Utc};
+use git2::{build::CheckoutBuilder, BranchType, Repository};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
-use chrono::{DateTime, TimeZone, Utc};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BranchInfo {
@@ -21,15 +21,22 @@ pub struct CommitInfo {
 #[tauri::command(rename_all = "snake_case")]
 pub fn get_git_branches(path: String) -> Result<Vec<BranchInfo>, String> {
     let repo_path = Path::new(&path);
-    let repo = Repository::open(repo_path).map_err(|e| format!("Failed to open git repo: {}", e))?;
+    let repo =
+        Repository::open(repo_path).map_err(|e| format!("Failed to open git repo: {}", e))?;
 
     let mut branches = Vec::new();
 
     // List local branches
-    let local_branches = repo.branches(Some(BranchType::Local)).map_err(|e| e.to_string())?;
+    let local_branches = repo
+        .branches(Some(BranchType::Local))
+        .map_err(|e| e.to_string())?;
     for b in local_branches {
         let (branch, _) = b.map_err(|e| e.to_string())?;
-        let name = branch.name().map_err(|e| e.to_string())?.unwrap_or("").to_string();
+        let name = branch
+            .name()
+            .map_err(|e| e.to_string())?
+            .unwrap_or("")
+            .to_string();
         let is_current = branch.is_head();
 
         branches.push(BranchInfo {
@@ -40,10 +47,16 @@ pub fn get_git_branches(path: String) -> Result<Vec<BranchInfo>, String> {
     }
 
     // List remote branches
-    let remote_branches = repo.branches(Some(BranchType::Remote)).map_err(|e| e.to_string())?;
+    let remote_branches = repo
+        .branches(Some(BranchType::Remote))
+        .map_err(|e| e.to_string())?;
     for b in remote_branches {
         let (branch, _) = b.map_err(|e| e.to_string())?;
-        let name = branch.name().map_err(|e| e.to_string())?.unwrap_or("").to_string();
+        let name = branch
+            .name()
+            .map_err(|e| e.to_string())?
+            .unwrap_or("")
+            .to_string();
         // Remote branches are rarely "head" in the local sense, usually detached or tracking
         // But git2 `is_head` checks if HEAD points to this branch reference.
         let is_current = branch.is_head();
@@ -61,7 +74,8 @@ pub fn get_git_branches(path: String) -> Result<Vec<BranchInfo>, String> {
 #[tauri::command(rename_all = "snake_case")]
 pub fn switch_git_branch(path: String, branch: String) -> Result<(), String> {
     let repo_path = Path::new(&path);
-    let repo = Repository::open(repo_path).map_err(|e| format!("Failed to open git repo: {}", e))?;
+    let repo =
+        Repository::open(repo_path).map_err(|e| format!("Failed to open git repo: {}", e))?;
 
     // Find the branch
     // This logic handles local branches. If it's a remote branch, we might need to create a local tracking branch.
@@ -73,8 +87,9 @@ pub fn switch_git_branch(path: String, branch: String) -> Result<(), String> {
         Ok(o) => o,
         Err(_) => {
             // Try remote?
-             let remote_ref_name = format!("refs/remotes/{}", branch);
-             repo.revparse_single(&remote_ref_name).map_err(|e| format!("Branch not found: {}", e))?
+            let remote_ref_name = format!("refs/remotes/{}", branch);
+            repo.revparse_single(&remote_ref_name)
+                .map_err(|e| format!("Branch not found: {}", e))?
         }
     };
 
@@ -92,10 +107,12 @@ pub fn switch_git_branch(path: String, branch: String) -> Result<(), String> {
         .map_err(|e| format!("Checkout failed (conflict?): {}", e))?;
 
     if repo.find_branch(&branch, BranchType::Local).is_ok() {
-         repo.set_head(&branch_ref_name).map_err(|e| format!("Failed to set HEAD: {}", e))?;
+        repo.set_head(&branch_ref_name)
+            .map_err(|e| format!("Failed to set HEAD: {}", e))?;
     } else {
-         // Detached head for commit/remote?
-         repo.set_head_detached(obj.id()).map_err(|e| format!("Failed to detach HEAD: {}", e))?;
+        // Detached head for commit/remote?
+        repo.set_head_detached(obj.id())
+            .map_err(|e| format!("Failed to detach HEAD: {}", e))?;
     }
 
     Ok(())
@@ -104,11 +121,14 @@ pub fn switch_git_branch(path: String, branch: String) -> Result<(), String> {
 #[tauri::command(rename_all = "snake_case")]
 pub fn get_git_log(path: String, count: i32) -> Result<Vec<CommitInfo>, String> {
     let repo_path = Path::new(&path);
-    let repo = Repository::open(repo_path).map_err(|e| format!("Failed to open git repo: {}", e))?;
+    let repo =
+        Repository::open(repo_path).map_err(|e| format!("Failed to open git repo: {}", e))?;
 
     let mut revwalk = repo.revwalk().map_err(|e| e.to_string())?;
     revwalk.push_head().map_err(|e| e.to_string())?;
-    revwalk.set_sorting(git2::Sort::TIME).map_err(|e| e.to_string())?;
+    revwalk
+        .set_sorting(git2::Sort::TIME)
+        .map_err(|e| e.to_string())?;
 
     let mut commits = Vec::new();
     let mut i = 0;
@@ -124,7 +144,10 @@ pub fn get_git_log(path: String, count: i32) -> Result<Vec<CommitInfo>, String> 
         let author_name = author.name().unwrap_or("Unknown").to_string();
 
         let time_val = commit.time().seconds();
-        let dt = Utc.timestamp_opt(time_val, 0).single().unwrap_or(Utc::now());
+        let dt = Utc
+            .timestamp_opt(time_val, 0)
+            .single()
+            .unwrap_or(Utc::now());
         let time_str = dt.format("%Y-%m-%d %H:%M").to_string();
 
         let message = commit.message().unwrap_or("").trim().to_string();
@@ -170,7 +193,7 @@ pub fn open_in_folder(path: String) -> Result<(), String> {
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn open_in_terminal(path: String) -> Result<(), String> {
-     #[cfg(target_os = "windows")]
+    #[cfg(target_os = "windows")]
     {
         std::process::Command::new("cmd")
             .args(&["/c", "start", "cmd", "/k", &format!("cd /d {}", path)])
@@ -191,30 +214,36 @@ pub fn open_in_terminal(path: String) -> Result<(), String> {
         // `x-terminal-emulator` is a Debian/Ubuntu alternative system.
         // `gnome-terminal`, `konsole`, `xfce4-terminal`.
 
-        let terminals = ["x-terminal-emulator", "gnome-terminal", "konsole", "xfce4-terminal", "xterm"];
+        let terminals = [
+            "x-terminal-emulator",
+            "gnome-terminal",
+            "konsole",
+            "xfce4-terminal",
+            "xterm",
+        ];
         let mut success = false;
 
         for term in terminals {
-             // Argument handling differs by terminal...
-             // Gnome/XFCE: --working-directory
-             // Konsole: --workdir
-             // xterm: -e cd path? No easy way.
+            // Argument handling differs by terminal...
+            // Gnome/XFCE: --working-directory
+            // Konsole: --workdir
+            // xterm: -e cd path? No easy way.
 
-             let mut cmd = std::process::Command::new(term);
+            let mut cmd = std::process::Command::new(term);
 
-             if term == "gnome-terminal" || term == "xfce4-terminal" {
-                 cmd.args(&["--working-directory", &path]);
-             } else if term == "konsole" {
-                 cmd.args(&["--workdir", &path]);
-             } else {
-                 // For generic, just try spawning it, user might have to cd manually if args not supported
-                 // Or try passing path if it supports it
-             }
+            if term == "gnome-terminal" || term == "xfce4-terminal" {
+                cmd.args(&["--working-directory", &path]);
+            } else if term == "konsole" {
+                cmd.args(&["--workdir", &path]);
+            } else {
+                // For generic, just try spawning it, user might have to cd manually if args not supported
+                // Or try passing path if it supports it
+            }
 
-             if cmd.spawn().is_ok() {
-                 success = true;
-                 break;
-             }
+            if cmd.spawn().is_ok() {
+                success = true;
+                break;
+            }
         }
 
         if !success {

@@ -1,17 +1,19 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { Search, ChevronDown, Check, Package, ChevronRight, Folder } from 'lucide-vue-next';
+import { Search, ChevronDown, Check, Waypoints, ChevronRight, Folder } from 'lucide-vue-next';
 
-interface Repo {
+interface Route {
   id: string;
   name: string;
   groupPath: string;
+  source_id?: string;
+  target_id?: string;
   [key: string]: any;
 }
 
 const props = defineProps<{
   modelValue: string | null;
-  repos: Repo[];
+  routes: Route[];
   placeholder?: string;
 }>();
 
@@ -24,26 +26,26 @@ const dropdownRef = ref<HTMLElement | null>(null);
 // State for tree navigation
 const currentPath = ref<string[]>([]);
 
-const selectedRepo = computed(() => {
-    return props.repos.find(r => r.id === props.modelValue);
+const selectedRoute = computed(() => {
+    return props.routes.find(r => r.id === props.modelValue);
 });
 
-// Build a tree structure from flat repos
-const repoTree = computed(() => {
-    const root: any = { children: {}, repos: [] };
+// Build a tree structure from flat routes
+const routeTree = computed(() => {
+    const root: any = { children: {}, routes: [] };
     
-    props.repos.forEach(repo => {
-        const segments = repo.groupPath ? repo.groupPath.split(' / ') : [];
+    props.routes.forEach(route => {
+        const segments = route.groupPath ? route.groupPath.split(' / ') : [];
         let current = root;
         
         segments.forEach(segment => {
             if (!current.children[segment]) {
-                current.children[segment] = { children: {}, repos: [] };
+                current.children[segment] = { children: {}, routes: [] };
             }
             current = current.children[segment];
         });
         
-        current.repos.push(repo);
+        current.routes.push(route);
     });
     
     return root;
@@ -51,12 +53,12 @@ const repoTree = computed(() => {
 
 // Navigate to current folder in the tree
 const currentFolder = computed(() => {
-    let current = repoTree.value;
+    let current = routeTree.value;
     for (const segment of currentPath.value) {
         if (current.children[segment]) {
             current = current.children[segment];
         } else {
-            return { children: {}, repos: [] }; // Fallback
+            return { children: {}, routes: [] }; // Fallback
         }
     }
     return current;
@@ -77,13 +79,13 @@ const breadcrumbs = computed(() => {
 const filteredResults = computed(() => {
     if (!searchQuery.value) return null;
     const q = searchQuery.value.toLowerCase();
-    return props.repos.filter(r => 
+    return props.routes.filter(r => 
         r.name.toLowerCase().includes(q) || 
         (r.groupPath && r.groupPath.toLowerCase().includes(q))
     );
 });
 
-const selectRepo = (id: string) => {
+const selectRoute = (id: string) => {
     emit('update:modelValue', id);
     isOpen.value = false;
     searchQuery.value = '';
@@ -122,12 +124,12 @@ onUnmounted(() => {
         :class="{ 'ring-2 ring-ring ring-offset-2': isOpen }"
     >
         <div class="flex items-center gap-2 truncate">
-            <Package v-if="selectedRepo" class="w-4 h-4 text-muted-foreground flex-shrink-0" />
-            <div v-if="selectedRepo" class="flex flex-col leading-tight truncate">
-                <span class="truncate font-medium">{{ selectedRepo.name }}</span>
-                <span v-if="selectedRepo.groupPath" class="text-[10px] text-muted-foreground truncate">{{ selectedRepo.groupPath }}</span>
+            <Waypoints v-if="selectedRoute" class="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            <div v-if="selectedRoute" class="flex flex-col leading-tight truncate">
+                <span class="truncate font-medium">{{ selectedRoute.name }}</span>
+                <span v-if="selectedRoute.groupPath" class="text-[10px] text-muted-foreground truncate">{{ selectedRoute.groupPath }}</span>
             </div>
-            <span v-else class="text-muted-foreground">{{ placeholder || '选择仓库...' }}</span>
+            <span v-else class="text-muted-foreground">{{ placeholder || $t('task.steps.sync.select_route', '选择同步路线...') }}</span>
         </div>
         <ChevronDown class="h-4 w-4 opacity-50 flex-shrink-0" />
     </div>
@@ -135,7 +137,7 @@ onUnmounted(() => {
     <!-- Dropdown -->
     <div 
         v-if="isOpen"
-        class="absolute z-50 mt-1 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in fade-in-0 zoom-in-95 flex flex-col min-w-[240px]"
+        class="absolute z-50 mt-1 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in fade-in-0 zoom-in-95 flex flex-col min-w-[280px]"
     >
         <!-- Search Header -->
         <div class="flex items-center border-b px-3 h-10 shrink-0">
@@ -143,7 +145,7 @@ onUnmounted(() => {
             <input 
                 v-model="searchQuery"
                 class="flex h-full w-full bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground"
-                :placeholder="$t('common.filter', '搜索名称或路径...')"
+                :placeholder="$t('common.filter', '搜索名称或分组...')"
                 autoFocus
             />
         </div>
@@ -167,20 +169,20 @@ onUnmounted(() => {
             <!-- Search Results Mode -->
             <template v-if="searchQuery">
                 <div v-if="filteredResults && filteredResults.length === 0" class="py-6 text-center text-sm text-muted-foreground">
-                    未找到匹配项
+                    {{ $t('common.no_match', '未找到匹配项') }}
                 </div>
                 <div 
-                    v-for="repo in filteredResults" 
-                    :key="repo.id"
-                    @click="selectRepo(repo.id)"
+                    v-for="route in filteredResults" 
+                    :key="route.id"
+                    @click="selectRoute(route.id)"
                     class="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground transition-all group"
                 >
-                    <Package class="mr-2 h-4 w-4 opacity-70 group-hover:text-primary" />
+                    <Waypoints class="mr-2 h-4 w-4 opacity-70 group-hover:text-primary" />
                     <div class="flex-1 truncate">
-                        <div class="font-medium truncate">{{ repo.name }}</div>
-                        <div class="text-[10px] text-muted-foreground truncate">{{ repo.groupPath }}</div>
+                        <div class="font-medium truncate">{{ route.name }}</div>
+                        <div class="text-[10px] text-muted-foreground truncate">{{ route.groupPath }}</div>
                     </div>
-                    <Check v-if="modelValue === repo.id" class="ml-2 h-4 w-4 text-primary" />
+                    <Check v-if="modelValue === route.id" class="ml-2 h-4 w-4 text-primary" />
                 </div>
             </template>
 
@@ -198,21 +200,21 @@ onUnmounted(() => {
                     <ChevronRight class="h-3 w-3 text-muted-foreground opacity-50" />
                 </div>
 
-                <!-- Repositories -->
-                <div v-if="currentFolder.repos.length === 0 && Object.keys(currentFolder.children).length === 0" class="py-6 text-center text-sm text-muted-foreground italic">
-                    该目录下没有仓库
+                <!-- Routes -->
+                <div v-if="currentFolder.routes.length === 0 && Object.keys(currentFolder.children).length === 0" class="py-6 text-center text-sm text-muted-foreground italic">
+                    {{ $t('task.steps.sync.no_routes', '该目录下没有同步路线') }}
                 </div>
                 
                 <div 
-                    v-for="repo in currentFolder.repos" 
-                    :key="repo.id"
-                    @click="selectRepo(repo.id)"
+                    v-for="route in currentFolder.routes" 
+                    :key="route.id"
+                    @click="selectRoute(route.id)"
                     class="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground transition-all group"
-                    :class="{ 'bg-accent/50': modelValue === repo.id }"
+                    :class="{ 'bg-accent/50': modelValue === route.id }"
                 >
-                    <Package class="mr-2 h-4 w-4 opacity-70 group-hover:text-primary" />
-                    <span class="flex-1 truncate font-medium">{{ repo.name }}</span>
-                    <Check v-if="modelValue === repo.id" class="ml-2 h-4 w-4 text-primary" />
+                    <Waypoints class="mr-2 h-4 w-4 opacity-70 group-hover:text-primary" />
+                    <span class="flex-1 truncate font-medium">{{ route.name }}</span>
+                    <Check v-if="modelValue === route.id" class="ml-2 h-4 w-4 text-primary" />
                 </div>
             </template>
         </div>

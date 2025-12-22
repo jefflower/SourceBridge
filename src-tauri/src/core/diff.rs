@@ -1,19 +1,19 @@
+use crate::commands::route::MappingRule;
+use crate::database::entities::routes;
 use anyhow::Result;
-use std::path::Path;
-use std::fs;
-use similar::TextDiff;
-use walkdir::WalkDir;
 use glob::Pattern;
 use serde::{Deserialize, Serialize};
-use crate::database::entities::routes;
-use crate::commands::route::MappingRule;
+use similar::TextDiff;
+use std::fs;
+use std::path::Path;
+use walkdir::WalkDir;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ChangeType {
     Added,
     Modified,
     Deleted,
-    Unchanged
+    Unchanged,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -49,114 +49,139 @@ impl DiffEngine {
         Ok(DiffSummary { changes: vec![] }) // Placeholder return for signature check, logic below
     }
 
-    pub fn scan_changes_with_roots(source_root: &Path, target_root: &Path, mappings: &[MappingRule]) -> Result<DiffSummary> {
+    pub fn scan_changes_with_roots(
+        source_root: &Path,
+        target_root: &Path,
+        mappings: &[MappingRule],
+    ) -> Result<DiffSummary> {
         let mut changes = Vec::new();
+        let mut processed_paths = std::collections::HashSet::new();
 
         for rule in mappings {
-            // Check Glob
-            let pattern = Pattern::new(&rule.source)?;
+            // Skip ignore mode rules for diff preview
+            if rule.mode == "ignore" {
+                continue;
+            }
+
+            // Parse source and target globs
+            let source_pattern = Pattern::new(&rule.source)?;
+
+            // Extract base prefix from glob (part before first * or **)
+            let source_base = Self::extract_glob_base(&rule.source);
+            let target_base = if rule.target.is_empty() {
+                // If target is empty, use same structure as source
+                source_base.clone()
+            } else {
+                Self::extract_glob_base(&rule.target)
+            };
 
             // Walk Source
-            for entry in WalkDir::new(source_root) {
+            for entry in WalkDir::new(source_root).into_iter().filter_entry(|e| {
+                let name = e.file_name().to_string_lossy();
+                !name.starts_with('.')
+                    && name != "node_modules"
+                    && name != "target"
+                    && name != "dist"
+            }) {
                 let entry = entry?;
                 if entry.file_type().is_file() {
-                    let relative_path = entry.path().strip_prefix(source_root)?.to_string_lossy();
+                    let relative_path = entry
+                        .path()
+                        .strip_prefix(source_root)?
+                        .to_string_lossy()
+                        .to_string();
+                    // Normalize path separators
+                    let normalized_relative = relative_path.replace('\\', "/");
 
-                    if pattern.matches(&relative_path) {
+                    if source_pattern.matches(&normalized_relative) {
+                        // Avoid processing same file multiple times if multiple rules match
+                        if processed_paths.contains(&normalized_relative) {
+                            continue;
+                        }
+                        processed_paths.insert(normalized_relative.clone());
+
                         let source_file = entry.path();
-                        // Construct Target Path (Simple replace for now)
-                        // rule.target is likely a directory prefix if it ends with /
-                        let target_file = if rule.target.ends_with('/') {
-                            target_root.join(&rule.target).join(&*relative_path)
+
+                        // Calculate target path by replacing source_base with target_base
+                        let target_relative = if normalized_relative.starts_with(&source_base) {
+                            let suffix = &normalized_relative[source_base.len()..];
+                            format!("{}{}", target_base, suffix)
                         } else {
-                            target_root.join(&rule.target)
+                            // If no base match, use same relative path with target_base prepended
+                            format!("{}{}", target_base, normalized_relative)
                         };
+
+                        let target_file = target_root.join(&target_relative);
 
                         // Compare
                         if !target_file.exists() {
                             changes.push(FileChange {
-                                path: relative_path.to_string(),
+                                path: normalized_relative,
                                 change_type: ChangeType::Added,
                                 source_path: Some(source_file.to_string_lossy().to_string()),
-                                target_path: None,
+                                target_path: Some(target_file.to_string_lossy().to_string()),
                             });
                         } else {
-                            // Check size or mtime or content hash
+                            // Check size first (quick check)
                             let source_meta = fs::metadata(source_file)?;
                             let target_meta = fs::metadata(&target_file)?;
 
                             if source_meta.len() != target_meta.len() {
                                 changes.push(FileChange {
-                                    path: relative_path.to_string(),
+                                    path: normalized_relative,
                                     change_type: ChangeType::Modified,
                                     source_path: Some(source_file.to_string_lossy().to_string()),
                                     target_path: Some(target_file.to_string_lossy().to_string()),
                                 });
                             } else {
-                                // Deeper check? For Quick Check, maybe skip or assume unchanged.
-                                // Let's mark unchanged for now or verify modification time
-                                // If source is newer?
-                                // For sync, if source changed, we sync.
-                                changes.push(FileChange {
-                                    path: relative_path.to_string(),
-                                    change_type: ChangeType::Unchanged, // Or filter out
-                                    source_path: Some(source_file.to_string_lossy().to_string()),
-                                    target_path: Some(target_file.to_string_lossy().to_string()),
-                                });
+                                // Same size - do content comparison
+                                let source_content = fs::read(source_file).unwrap_or_default();
+                                let target_content = fs::read(&target_file).unwrap_or_default();
+
+                                if source_content != target_content {
+                                    changes.push(FileChange {
+                                        path: normalized_relative,
+                                        change_type: ChangeType::Modified,
+                                        source_path: Some(
+                                            source_file.to_string_lossy().to_string(),
+                                        ),
+                                        target_path: Some(
+                                            target_file.to_string_lossy().to_string(),
+                                        ),
+                                    });
+                                }
+                                // If content is same, skip (don't add Unchanged to reduce noise)
                             }
                         }
                     }
                 }
             }
-
-            // Check for Deleted files (in Target but not in Source matching rule)
-            // Strategy: Walk Target, if match rule but not in Source -> Deleted
-            // Note: This requires reverse mapping logic if rules are complex.
-            // For simple "copy", we can assume target structure mirrors source.
-
-            // Construct target base path for this rule
-            let target_base = if rule.target.ends_with('/') {
-                target_root.join(&rule.target)
-            } else {
-                target_root.join(&rule.target)
-            };
-
-            if target_base.exists() {
-                 for entry in WalkDir::new(&target_base) {
-                    let entry = entry?;
-                    if entry.file_type().is_file() {
-                        let relative_target = entry.path().strip_prefix(&target_base)?.to_string_lossy();
-                        // Verify if this file should have existed in source
-                        // This implies we need to match it back to source pattern.
-                        // If source pattern is src/*.ts, and we found dest/main.ts, does it correspond to src/main.ts?
-                        // Yes if we assume 1:1 mapping within the glob.
-
-                        // Check if corresponding source file exists
-                        let source_file = source_root.join(&*relative_target); // Simplified assumption for glob
-                        // Ideally we should check if 'relative_target' matches the glob if we were scanning source.
-                        // But here we are scanning target.
-
-                        if !source_file.exists() {
-                             // Double check if this file matches the intended rule scope?
-                             // If rule was src/*.ts -> dest/, and we found dest/junk.txt (which wasn't a ts file),
-                             // does it mean it was deleted from source? No, it might just be a file that shouldn't be there or ignored.
-                             // We should only mark "Deleted" if it WAS in source (conceptually) or if we want strict mirroring.
-                             // For strict mirror: anything in target not in source is deleted.
-                             // Let's assume strict mirror for this task to support "Deleted" status.
-
-                             changes.push(FileChange {
-                                path: relative_target.to_string(),
-                                change_type: ChangeType::Deleted,
-                                source_path: None,
-                                target_path: Some(entry.path().to_string_lossy().to_string()),
-                            });
-                        }
-                    }
-                 }
-            }
         }
 
         Ok(DiffSummary { changes })
+    }
+
+    /// Extract the base prefix from a glob pattern (part before first * or **)
+    /// e.g., "src/**/*.vue" -> "src/"
+    /// e.g., "**/*.ts" -> ""
+    /// e.g., "lib/components/*.vue" -> "lib/components/"
+    fn extract_glob_base(pattern: &str) -> String {
+        // Find the first occurrence of * or **
+        if let Some(pos) = pattern.find('*') {
+            // Find the last slash before the wildcard
+            let prefix = &pattern[..pos];
+            if let Some(last_slash) = prefix.rfind('/') {
+                return pattern[..=last_slash].to_string();
+            }
+            // No slash before wildcard, return empty
+            return String::new();
+        }
+        // No wildcard found, treat whole pattern as a directory prefix
+        if pattern.ends_with('/') {
+            pattern.to_string()
+        } else {
+            format!("{}/", pattern)
+        }
     }
 
     #[allow(dead_code)]
@@ -185,14 +210,29 @@ impl DiffEngine {
         Ok("Use get_file_content for Monaco".to_string())
     }
 
-    pub fn get_file_content_pair(source_path: Option<String>, target_path: Option<String>) -> Result<(String, String)> {
+    pub fn get_file_content_pair(
+        source_path: Option<String>,
+        target_path: Option<String>,
+    ) -> Result<(String, String)> {
         let source_text = if let Some(p) = source_path {
-            if Path::new(&p).exists() { fs::read_to_string(p).unwrap_or_default() } else { String::new() }
-        } else { String::new() };
+            if Path::new(&p).exists() {
+                fs::read_to_string(p).unwrap_or_default()
+            } else {
+                String::new()
+            }
+        } else {
+            String::new()
+        };
 
         let target_text = if let Some(p) = target_path {
-            if Path::new(&p).exists() { fs::read_to_string(p).unwrap_or_default() } else { String::new() }
-        } else { String::new() };
+            if Path::new(&p).exists() {
+                fs::read_to_string(p).unwrap_or_default()
+            } else {
+                String::new()
+            }
+        } else {
+            String::new()
+        };
 
         Ok((target_text, source_text)) // Original (Target), Modified (Source)
     }

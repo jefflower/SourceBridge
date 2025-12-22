@@ -103,30 +103,68 @@
             </button>
         </div>
 
-        <!-- Test Panel -->
+        <!-- Glob Preview Panel -->
         <div class="mt-8 border rounded-lg p-4 bg-muted/20">
-            <h4 class="font-semibold mb-2">{{ $t('route.mapping.test') }}</h4>
-            <p class="text-xs text-muted-foreground mb-2">{{ $t('route.mapping.test_desc') }}</p>
-            <div class="flex gap-2">
-                <input v-model="testPath" class="flex-1 flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm" :placeholder="$t('route.mapping.test_placeholder')" />
-                <button @click="runTest" class="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-3 py-1 rounded text-sm">Check</button>
-            </div>
-            <div v-if="testResult" class="mt-2 text-sm flex items-center justify-between">
-                <div>
-                    <span v-if="testResult.matched" class="text-green-600 font-medium block">
-                        {{ $t('route.test.match', { index: testResult.rule_index + 1, target: testResult.target_path }) }}
-                    </span>
-                    <span v-else class="text-destructive font-medium block">
-                        {{ $t('route.test.no_match') }}
-                    </span>
-                </div>
-                <button
-                    v-if="!testResult.matched && testPath"
-                    @click="addPathAsRule"
-                    class="text-primary hover:underline text-xs"
+            <h4 class="font-semibold mb-2">{{ $t('route.preview.title') }}</h4>
+            <p class="text-xs text-muted-foreground mb-3">{{ $t('route.preview.desc') }}</p>
+            
+            <div class="flex gap-2 mb-3">
+                <!-- Repo Selector -->
+                <select v-model="previewRepoType" class="h-9 rounded-md border border-input bg-background px-3 text-sm min-w-[100px]">
+                    <option value="source">{{ $t('route.form.source.label') }}</option>
+                    <option value="target">{{ $t('route.form.target.label') }}</option>
+                </select>
+                
+                <!-- Glob Pattern Input -->
+                <input 
+                    v-model="previewPattern" 
+                    class="flex-1 flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm font-mono" 
+                    :placeholder="$t('route.preview.placeholder')"
+                    @keyup.enter="runPreview"
+                />
+                <button 
+                    @click="runPreview" 
+                    :disabled="previewLoading || !previewPattern"
+                    class="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-1 rounded text-sm disabled:opacity-50"
                 >
-                    {{ $t('route.mapping.add_this_path') }}
+                    <span v-if="previewLoading">...</span>
+                    <span v-else>{{ $t('route.preview.scan') }}</span>
                 </button>
+            </div>
+            
+            <!-- Results -->
+            <div v-if="previewResult" class="mt-3">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-muted-foreground">
+                        {{ $t('route.preview.found', { count: previewResult.total }) }}
+                        <span v-if="previewResult.total > 200" class="text-yellow-600">({{ $t('route.preview.truncated') }})</span>
+                    </span>
+                    <button 
+                        v-if="previewPattern && previewResult.matches.length > 0"
+                        @click="addPatternAsRule"
+                        class="text-primary hover:underline text-xs"
+                    >
+                        {{ $t('route.preview.add_as_rule') }}
+                    </button>
+                </div>
+                
+                <div v-if="previewResult.matches.length > 0" class="max-h-48 overflow-auto border rounded bg-background">
+                    <div 
+                        v-for="(file, index) in previewResult.matches" 
+                        :key="index"
+                        class="px-3 py-1.5 text-sm font-mono border-b last:border-b-0 hover:bg-muted/50 truncate"
+                        :title="file"
+                    >
+                        {{ file }}
+                    </div>
+                </div>
+                <div v-else class="text-sm text-muted-foreground italic py-4 text-center">
+                    {{ $t('route.preview.no_matches') }}
+                </div>
+            </div>
+            
+            <div v-if="previewError" class="mt-2 text-sm text-destructive">
+                {{ previewError }}
             </div>
         </div>
       </div>
@@ -158,9 +196,14 @@ const tabs = [
 const currentTab = ref('info');
 const localRoute = ref({ ...props.route });
 const mappings = ref<any[]>([]);
-const testPath = ref('');
-const testResult = ref<any>(null);
 const diffModal = ref<any>(null);
+
+// Preview panel state
+const previewRepoType = ref<'source' | 'target'>('source');
+const previewPattern = ref('');
+const previewLoading = ref(false);
+const previewResult = ref<{ matches: string[]; total: number } | null>(null);
+const previewError = ref('');
 
 const loadMappings = async () => {
     // Backend returns route with mappings (JSON string) or we fetch separately?
@@ -180,6 +223,9 @@ const loadMappings = async () => {
 watch(() => props.route, (newVal) => {
     localRoute.value = { ...newVal };
     loadMappings();
+    // Reset preview state when route changes
+    previewResult.value = null;
+    previewError.value = '';
 }, { immediate: true });
 
 const saveInfo = () => {
@@ -208,26 +254,44 @@ const removeRule = (index: number) => {
     mappings.value.splice(index, 1);
 };
 
-const runTest = async () => {
+const runPreview = async () => {
+    if (!previewPattern.value) return;
+    
+    const repoId = previewRepoType.value === 'source' 
+        ? localRoute.value.source_id 
+        : localRoute.value.target_id;
+    
+    if (!repoId) {
+        previewError.value = previewRepoType.value === 'source' 
+            ? '请先选择源仓库' 
+            : '请先选择目标仓库';
+        previewResult.value = null;
+        return;
+    }
+    
+    previewLoading.value = true;
+    previewError.value = '';
+    previewResult.value = null;
+    
     try {
-        const json = JSON.stringify(mappings.value);
-        const res = await invoke('test_route_mapping', { path: testPath.value, mappings: json });
-        testResult.value = res;
-    } catch (e) {
-        console.error(e);
+        const result = await invoke<{ matches: string[]; total: number }>('preview_glob_matches', {
+            repo_id: repoId,
+            pattern: previewPattern.value
+        });
+        previewResult.value = result;
+    } catch (e: any) {
+        previewError.value = String(e);
+    } finally {
+        previewLoading.value = false;
     }
 };
 
-const addPathAsRule = () => {
-    if (!testPath.value) return;
+const addPatternAsRule = () => {
+    if (!previewPattern.value) return;
     mappings.value.push({
-        source: testPath.value,
+        source: previewPattern.value,
         target: '',
         mode: 'copy'
     });
-    // Clear test result or re-run? Re-running is better UX to confirm match.
-    // But backend is async.
-    // Let's just reset testResult to avoid "No Match" showing immediately after click.
-    testResult.value = null;
 };
 </script>

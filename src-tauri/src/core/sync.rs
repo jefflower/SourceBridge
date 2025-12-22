@@ -1,11 +1,11 @@
+use crate::commands::route::MappingRule;
+use crate::core::diff::{ChangeType, DiffEngine};
+use crate::database::entities::{repositories, routes};
+use crate::database::manager::DatabaseManager;
 use anyhow::Result;
+use sea_orm::EntityTrait;
 use std::fs;
 use std::path::Path;
-use crate::database::entities::{routes, repositories};
-use crate::database::manager::DatabaseManager;
-use crate::core::diff::{DiffEngine, ChangeType};
-use crate::commands::route::MappingRule;
-use sea_orm::EntityTrait;
 
 pub struct SyncEngine;
 
@@ -22,14 +22,30 @@ impl SyncEngine {
         let db = &db_manager.connection;
 
         // 1. Fetch Route
-        let route = routes::Entity::find_by_id(route_id).one(db).await?
+        let route = routes::Entity::find_by_id(route_id)
+            .one(db)
+            .await?
             .ok_or(anyhow::anyhow!("Route not found"))?;
 
         // 2. Fetch Repos
-        let source_repo = repositories::Entity::find_by_id(route.main_repo_id.clone().ok_or(anyhow::anyhow!("No source"))?).one(db).await?
-            .ok_or(anyhow::anyhow!("Source repo not found"))?;
-        let target_repo = repositories::Entity::find_by_id(route.slave_repo_id.clone().ok_or(anyhow::anyhow!("No target"))?).one(db).await?
-            .ok_or(anyhow::anyhow!("Target repo not found"))?;
+        let source_repo = repositories::Entity::find_by_id(
+            route
+                .main_repo_id
+                .clone()
+                .ok_or(anyhow::anyhow!("No source"))?,
+        )
+        .one(db)
+        .await?
+        .ok_or(anyhow::anyhow!("Source repo not found"))?;
+        let target_repo = repositories::Entity::find_by_id(
+            route
+                .slave_repo_id
+                .clone()
+                .ok_or(anyhow::anyhow!("No target"))?,
+        )
+        .one(db)
+        .await?
+        .ok_or(anyhow::anyhow!("Target repo not found"))?;
 
         // 3. Parse Mappings
         let mappings_json = route.mappings.ok_or(anyhow::anyhow!("No mappings"))?;
@@ -46,6 +62,11 @@ impl SyncEngine {
         let mut fail = 0;
         let mut logs = String::new();
 
+        println!("[SyncEngine] Syncing Route: {} ({})", route.name, route_id);
+        println!(
+            "[SyncEngine] Source: {} -> Target: {}",
+            source_repo.name, target_repo.name
+        );
         logs.push_str(&format!("Syncing Route: {}\n", route.name));
 
         for change in summary.changes {
@@ -58,7 +79,10 @@ impl SyncEngine {
                         if let Some(parent) = dst_path.parent() {
                             if !parent.exists() {
                                 if let Err(e) = fs::create_dir_all(parent) {
-                                    logs.push_str(&format!("[ERR] Failed to create dir {:?}: {}\n", parent, e));
+                                    logs.push_str(&format!(
+                                        "[ERR] Failed to create dir {:?}: {}\n",
+                                        parent, e
+                                    ));
                                     fail += 1;
                                     continue;
                                 }
@@ -67,32 +91,48 @@ impl SyncEngine {
 
                         match fs::copy(src_path, dst_path) {
                             Ok(_) => {
-                                logs.push_str(&format!("[OK] Copied {:?} -> {:?}\n", src_path, dst_path));
+                                logs.push_str(&format!(
+                                    "[OK] Copied {:?} -> {:?}\n",
+                                    src_path, dst_path
+                                ));
                                 success += 1;
-                            },
+                            }
                             Err(e) => {
-                                logs.push_str(&format!("[ERR] Copy failed {:?} -> {:?}: {}\n", src_path, dst_path, e));
+                                logs.push_str(&format!(
+                                    "[ERR] Copy failed {:?} -> {:?}: {}\n",
+                                    src_path, dst_path, e
+                                ));
                                 fail += 1;
                             }
                         }
                     }
-                },
+                }
                 ChangeType::Deleted => {
                     // Implement deletion if configured
-                    logs.push_str(&format!("[SKIP] Deletion detected but not enabled for {:?}\n", change.path));
-                },
+                    logs.push_str(&format!(
+                        "[SKIP] Deletion detected but not enabled for {:?}\n",
+                        change.path
+                    ));
+                }
                 ChangeType::Unchanged => {
                     // logs.push_str(&format!("[SKIP] Unchanged {:?}\n", change.path));
                 }
             }
         }
 
-        logs.push_str(&format!("Sync Completed. Success: {}, Failed: {}\n", success, fail));
+        logs.push_str(&format!(
+            "Sync Completed. Success: {}, Failed: {}\n",
+            success, fail
+        ));
+        println!(
+            "[SyncEngine] Sync Completed. Success: {}, Failed: {}",
+            success, fail
+        );
 
         Ok(SyncResult {
             success_count: success,
             fail_count: fail,
-            logs
+            logs,
         })
     }
 }

@@ -6,7 +6,7 @@
             <h2 class="font-bold text-lg">{{ $t('route.diff.title') }}: {{ route?.name }}</h2>
             <div class="flex gap-2">
                 <button @click="sideBySide = !sideBySide" class="px-3 py-1 text-sm border rounded hover:bg-muted">
-                    {{ sideBySide ? $t('route.diff.view.split') : $t('route.diff.view.inline') }}
+                    {{ sideBySide ? $t('route.diff.view.inline') : $t('route.diff.view.split') }}
                 </button>
                 <button @click="confirmSync" class="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700">
                     {{ $t('route.diff.exec_sync') }}
@@ -32,6 +32,7 @@
                 </div>
                 <MonacoDiffEditor
                     v-if="selectedFile"
+                    :key="sideBySide ? 'split' : 'inline'"
                     :original="content.original"
                     :modified="content.modified"
                     :renderSideBySide="sideBySide"

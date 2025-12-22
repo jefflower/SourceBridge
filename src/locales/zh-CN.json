@@ -126,7 +126,7 @@
         },
         "mapping": {
             "source": "源路径 (Glob)",
-            "target": "目标路径",
+            "target": "目标路径 (Glob)",
             "mode": "模式",
             "actions": "操作",
             "add": "添加规则",
@@ -138,7 +138,7 @@
             },
             "placeholder": {
                 "source": "src/**/*.ts",
-                "target": "dest/"
+                "target": "src/**/*.ts (留空则相同)"
             },
             "test_desc": "输入源仓库中的相对路径（例如 src/main.ts）验证规则匹配。",
             "add_this_path": "为此路径创建规则"
@@ -146,6 +146,16 @@
         "test": {
             "match": "匹配规则 #{index}: {target}",
             "no_match": "无匹配"
+        },
+        "preview": {
+            "title": "规则预览",
+            "desc": "输入 Glob 模式，扫描仓库查看匹配的文件列表，辅助验证规则。",
+            "placeholder": "例如: src/**/*.ts",
+            "scan": "扫描",
+            "found": "找到 {count} 个文件",
+            "truncated": "仅显示前200条",
+            "no_matches": "无匹配文件",
+            "add_as_rule": "添加为规则"
         },
         "no_routes": "请选择一条路线配置映射规则。",
         "diff": {
@@ -186,6 +196,8 @@
         "new": "新建任务",
         "steps_title": "执行步骤",
         "empty": "暂无任务。请创建一个。",
+        "delete_title": "删除确认",
+        "confirm_delete": "确定要删除任务 \"{name}\" 吗？",
         "status": {
             "pending": "待执行",
             "running": "执行中",
@@ -217,16 +229,21 @@
         },
         "steps": {
             "sync": {
-                "route_id": "路线 ID"
+                "route_id": "同步路线",
+                "select_route": "选择同步路线...",
+                "no_routes": "该目录下没有同步路线"
             },
             "git": {
-                "repo_id": "仓库 ID",
+                "repo_id": "目标仓库",
+                "select_repo": "选择仓库...",
                 "operation": "操作类型",
+                "force_push": "强制推送 (覆盖远程)",
                 "ops": {
                     "pull": "拉取 (Pull)",
                     "push": "推送 (Push)",
                     "fetch": "获取 (Fetch)",
-                    "reset": "重置 (Reset)"
+                    "reset": "重置 (Reset)",
+                    "reset_remote": "重置到远程 (Reset to Remote)"
                 }
             },
             "script": {
@@ -244,5 +261,34 @@
             "git": "基于 Git URL (Host/Owner)"
         },
         "progress": "正在导入: {current} / {total}"
+    },
+    "cron": {
+        "mode": {
+            "simple": "简单模式",
+            "advanced": "高级模式"
+        },
+        "frequency": "执行频率",
+        "freq": {
+            "every_minute": "每分钟",
+            "hourly": "每小时",
+            "daily": "每天",
+            "weekly": "每周",
+            "monthly": "每月"
+        },
+        "hour": "小时",
+        "minute": "分钟",
+        "day_of_week": "星期",
+        "day_of_month": "日期",
+        "days": {
+            "sun": "日",
+            "mon": "一",
+            "tue": "二",
+            "wed": "三",
+            "thu": "四",
+            "fri": "五",
+            "sat": "六"
+        },
+        "expression": "Cron 表达式",
+        "format_hint": "格式: 分 时 日 月 周 (例如 0 9 * * 1-5 表示工作日早9点)"
     }
 }

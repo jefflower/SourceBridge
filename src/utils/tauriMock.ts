@@ -17,7 +17,8 @@ declare global {
 // Check if we're running in Tauri or browser
 export const isTauri = (): boolean => {
   return typeof window !== 'undefined' && 
-         window.__TAURI_INTERNALS__ !== undefined;
+         (window.__TAURI_INTERNALS__ !== undefined || 
+          (window as any).__TAURI_IPC__ !== undefined);
 };
 
 // Mock data storage (in-memory for browser development)

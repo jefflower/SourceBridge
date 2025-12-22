@@ -1,191 +1,203 @@
 {
-  "nav": {
-    "dashboard": "Dashboard",
-    "repos": "Repositories",
-    "routes": "Routes",
-    "tasks": "Tasks",
-    "settings": "Settings"
-  },
-  "window": {
-    "minimize": "Minimize",
-    "maximize": "Maximize",
-    "close": "Close"
-  },
-  "actions": {
-      "save": "Save",
-      "check_now": "Check Now"
-  },
-  "settings": {
-      "title": "Settings",
-      "appearance": {
-          "title": "Appearance",
-          "theme": "Theme",
-          "language": "Language"
-      },
-      "env": {
-          "title": "Environment",
-          "git_path": "Git Executable Path",
-          "ssh_path": "SSH Key Default Path"
-      },
-      "system": {
-          "title": "System",
-          "startup": "Run on Startup",
-          "check": "Startup Check"
-      }
-  },
-  "repo": {
-      "group": {
-          "new": "New Group",
-          "name": "Group Name",
-          "parent": "Parent Group"
-      },
-      "add": "Add Repository",
-      "context": {
-          "open_terminal": "Open in Terminal",
-          "edit": "Edit",
-          "delete": "Delete",
-          "new_subgroup": "New Sub-Group",
-          "add_repo": "Add Repo Here",
-          "rename": "Rename"
-      },
-      "form": {
-          "name": {
-              "label": "Name",
-              "placeholder": "Repository Name"
-          },
-          "path": {
-              "label": "Path",
-              "placeholder": "Local Path"
-          },
-          "group": {
-              "label": "Group"
-          }
-      },
-      "no_repos": "Select a repository to view details or add a new one.",
-      "scan": {
-          "title": "Scan & Import Repositories",
-          "desc": "Select a folder to recursively scan for git repositories."
-      },
-      "branch": {
-          "label": "Branch",
-          "switch_success": "Branch switched successfully",
-          "switch_failed": "Failed to switch branch"
-      },
-      "tabs": {
-          "history": "History"
-      },
-      "actions": {
-          "open_folder": "Open Folder",
-          "open_terminal": "Open in Terminal"
-      },
-      "history": {
-          "no_log": "No commit history found"
-      }
-  },
-  "common": {
-      "browse": "Browse",
-      "scan": "Scan",
-      "scanning": "Scanning...",
-      "cancel": "Cancel",
-      "import": "Import Selected",
-      "importing": "Importing...",
-      "filter": "Filter...",
-      "no_matches": "No matching results"
-  },
-  "route": {
-      "group": {
-          "new": "New Route Group",
-          "name": "Group Name",
-          "parent": "Parent Group"
-      },
-      "add": "Add Route",
-      "tabs": {
-          "info": "Info",
-          "mappings": "Mappings"
-      },
-      "context": {
-          "new_subgroup": "New Sub-Group",
-          "add_route": "Add Route Here",
-          "rename": "Rename",
-          "delete": "Delete"
-      },
-      "form": {
-          "name": {
-              "label": "Name",
-              "placeholder": "Route Name"
-          },
-          "source": {
-              "label": "Source Repo"
-          },
-          "target": {
-              "label": "Target Repo"
-          },
-          "group": {
-              "label": "Group"
-          }
-      },
-      "mapping": {
-          "test_desc": "Enter relative path from source repo (e.g. src/main.ts) to verify.",
-          "add_this_path": "Create Rule for Path",
-          "source": "Source Path (Glob)",
-          "target": "Target Path",
-          "mode": "Mode",
-          "actions": "Actions",
-          "add": "Add Rule",
-          "test": "Test Match",
-          "test_placeholder": "Test Path (e.g. src/main.ts)",
-          "modes": {
-              "copy": "Copy",
-              "ignore": "Ignore"
-          },
-          "placeholder": {
-              "source": "src/**/*.ts",
-              "target": "dest/"
-          }
-      },
-      "test": {
-          "match": "Matches Rule #{index}: {target}",
-          "no_match": "No Match"
-      },
-      "no_routes": "Select a route to configure mappings.",
-      "diff": {
-          "title": "Sync Preview",
-          "exec_sync": "Confirm & Sync",
-          "file_list": "Changed Files",
-          "loading": "Scanning files...",
-          "no_changes": "No changes detected.",
-          "view": {
-              "inline": "Inline View",
-              "split": "Side-by-Side",
-              "original": "Original (Target)",
-              "modified": "Modified (Source)"
-          },
-          "status": {
-              "added": "Added",
-              "modified": "Modified",
-              "deleted": "Deleted",
-              "unchanged": "Unchanged"
-          }
-      },
-      "tray": {
-          "show": "Show Window",
-          "quit": "Quit"
-      },
-      "log": {
-          "title": "Execution Logs",
-          "start": "Start",
-          "end": "End",
-          "status": "Status",
-          "output": "Output"
-      }
-  },
-  "dashboard": {
-      "welcome": "Welcome to SourceBridge."
-  },
-  "task": {
+    "nav": {
+        "dashboard": "Dashboard",
+        "repos": "Repositories",
+        "routes": "Routes",
+        "tasks": "Tasks",
+        "settings": "Settings"
+    },
+    "window": {
+        "minimize": "Minimize",
+        "maximize": "Maximize",
+        "close": "Close"
+    },
+    "actions": {
+        "save": "Save",
+        "check_now": "Check Now"
+    },
+    "settings": {
+        "title": "Settings",
+        "appearance": {
+            "title": "Appearance",
+            "theme": "Theme",
+            "language": "Language"
+        },
+        "env": {
+            "title": "Environment",
+            "git_path": "Git Executable Path",
+            "ssh_path": "SSH Key Default Path"
+        },
+        "system": {
+            "title": "System",
+            "startup": "Run on Startup",
+            "check": "Startup Check"
+        }
+    },
+    "repo": {
+        "group": {
+            "new": "New Group",
+            "name": "Group Name",
+            "parent": "Parent Group"
+        },
+        "add": "Add Repository",
+        "context": {
+            "open_terminal": "Open in Terminal",
+            "edit": "Edit",
+            "delete": "Delete",
+            "new_subgroup": "New Sub-Group",
+            "add_repo": "Add Repo Here",
+            "rename": "Rename"
+        },
+        "form": {
+            "name": {
+                "label": "Name",
+                "placeholder": "Repository Name"
+            },
+            "path": {
+                "label": "Path",
+                "placeholder": "Local Path"
+            },
+            "group": {
+                "label": "Group"
+            }
+        },
+        "no_repos": "Select a repository to view details or add a new one.",
+        "scan": {
+            "title": "Scan & Import Repositories",
+            "desc": "Select a folder to recursively scan for git repositories."
+        },
+        "branch": {
+            "label": "Branch",
+            "switch_success": "Branch switched successfully",
+            "switch_failed": "Failed to switch branch"
+        },
+        "tabs": {
+            "history": "History"
+        },
+        "actions": {
+            "open_folder": "Open Folder",
+            "open_terminal": "Open in Terminal"
+        },
+        "history": {
+            "no_log": "No commit history found"
+        }
+    },
+    "common": {
+        "browse": "Browse",
+        "scan": "Scan",
+        "scanning": "Scanning...",
+        "cancel": "Cancel",
+        "import": "Import Selected",
+        "importing": "Importing...",
+        "filter": "Filter...",
+        "no_matches": "No matching results"
+    },
+    "route": {
+        "group": {
+            "new": "New Route Group",
+            "name": "Group Name",
+            "parent": "Parent Group"
+        },
+        "add": "Add Route",
+        "tabs": {
+            "info": "Info",
+            "mappings": "Mappings"
+        },
+        "context": {
+            "new_subgroup": "New Sub-Group",
+            "add_route": "Add Route Here",
+            "rename": "Rename",
+            "delete": "Delete"
+        },
+        "form": {
+            "name": {
+                "label": "Name",
+                "placeholder": "Route Name"
+            },
+            "source": {
+                "label": "Source Repo"
+            },
+            "target": {
+                "label": "Target Repo"
+            },
+            "group": {
+                "label": "Group"
+            }
+        },
+        "mapping": {
+            "test_desc": "Enter relative path from source repo (e.g. src/main.ts) to verify.",
+            "add_this_path": "Create Rule for Path",
+            "source": "Source Path (Glob)",
+            "target": "Target Path (Glob)",
+            "mode": "Mode",
+            "actions": "Actions",
+            "add": "Add Rule",
+            "test": "Test Match",
+            "test_placeholder": "Test Path (e.g. src/main.ts)",
+            "modes": {
+                "copy": "Copy",
+                "ignore": "Ignore"
+            },
+            "placeholder": {
+                "source": "src/**/*.ts",
+                "target": "src/**/*.ts (empty = same)"
+            }
+        },
+        "test": {
+            "match": "Matches Rule #{index}: {target}",
+            "no_match": "No Match"
+        },
+        "preview": {
+            "title": "Rule Preview",
+            "desc": "Enter a Glob pattern to scan the repository and preview matched files.",
+            "placeholder": "e.g. src/**/*.ts",
+            "scan": "Scan",
+            "found": "Found {count} files",
+            "truncated": "Showing first 200 only",
+            "no_matches": "No files matched",
+            "add_as_rule": "Add as Rule"
+        },
+        "no_routes": "Select a route to configure mappings.",
+        "diff": {
+            "title": "Sync Preview",
+            "exec_sync": "Confirm & Sync",
+            "file_list": "Changed Files",
+            "loading": "Scanning files...",
+            "no_changes": "No changes detected.",
+            "view": {
+                "inline": "Inline View",
+                "split": "Side-by-Side",
+                "original": "Original (Target)",
+                "modified": "Modified (Source)"
+            },
+            "status": {
+                "added": "Added",
+                "modified": "Modified",
+                "deleted": "Deleted",
+                "unchanged": "Unchanged"
+            }
+        },
+        "tray": {
+            "show": "Show Window",
+            "quit": "Quit"
+        },
+        "log": {
+            "title": "Execution Logs",
+            "start": "Start",
+            "end": "End",
+            "status": "Status",
+            "output": "Output"
+        }
+    },
+    "dashboard": {
+        "welcome": "Welcome to SourceBridge."
+    },
+    "task": {
         "new": "New Task",
         "steps_title": "Steps",
         "empty": "No tasks found. Create one to get started.",
+        "delete_title": "Confirm Delete",
+        "confirm_delete": "Are you sure you want to delete task \"{name}\"?",
         "status": {
             "pending": "Pending",
             "running": "Running",
@@ -205,42 +217,76 @@
         "trigger": {
             "manual": "Manual Trigger"
         },
-      "form": {
-          "name": {
-              "placeholder": "Task Name"
-          },
-          "schedule": {
+        "form": {
+            "name": {
+                "placeholder": "Task Name"
+            },
+            "schedule": {
                 "enable": "Enable Schedule",
                 "cron": "Cron Expression",
-              "placeholder": "Cron Expression (e.g. * * * * *)"
-          }
-      },
-      "steps": {
-          "sync": {
-              "route_id": "Route ID"
-          },
-          "git": {
-                "repo_id": "Repository ID",
+                "placeholder": "Cron Expression (e.g. * * * * *)"
+            }
+        },
+        "steps": {
+            "sync": {
+                "route_id": "Sync Route",
+                "select_route": "Select a route...",
+                "no_routes": "No routes in this folder"
+            },
+            "git": {
+                "repo_id": "Target Repository",
+                "select_repo": "Select a repo...",
                 "operation": "Operation",
+                "force_push": "Force Push (overwrite remote)",
                 "ops": {
                     "pull": "Pull",
                     "push": "Push",
                     "fetch": "Fetch",
-                    "reset": "Reset"
+                    "reset": "Reset",
+                    "reset_remote": "Reset to Remote"
                 }
-          },
-          "script": {
+            },
+            "script": {
                 "label": "Script Content",
                 "continue_on_error": "Continue on Error",
-              "placeholder": "# Write your script here..."
-          }
-      }
-  },
-  "scan": {
-      "root_path": "Root Path",
-      "found": "Found: {count}",
-      "selected": "Selected: {count}",
-      "no_results": "No git repositories found.",
-      "click_browse": "Click Browse to select folder"
-  }
+                "placeholder": "# Write your script here..."
+            }
+        }
+    },
+    "scan": {
+        "root_path": "Root Path",
+        "found": "Found: {count}",
+        "selected": "Selected: {count}",
+        "no_results": "No git repositories found.",
+        "click_browse": "Click Browse to select folder"
+    },
+    "cron": {
+        "mode": {
+            "simple": "Simple",
+            "advanced": "Advanced"
+        },
+        "frequency": "Frequency",
+        "freq": {
+            "every_minute": "Every Minute",
+            "hourly": "Hourly",
+            "daily": "Daily",
+            "weekly": "Weekly",
+            "monthly": "Monthly"
+        },
+        "hour": "Hour",
+        "minute": "Minute",
+        "day_of_week": "Day of Week",
+        "day_of_month": "Day of Month",
+        "days": {
+            "sun": "Sun",
+            "mon": "Mon",
+            "tue": "Tue",
+            "wed": "Wed",
+            "thu": "Thu",
+            "fri": "Fri",
+            "sat": "Sat"
+        },
+        "expression": "Cron Expression",
+        "format_hint": "Format: min hour day month weekday (e.g. 0 9 * * 1-5 for weekdays at 9am)"
+    }
 }

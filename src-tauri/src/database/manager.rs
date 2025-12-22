@@ -5,6 +5,7 @@ use sea_orm::ConnectionTrait;
 use sea_orm::Statement;
 use crate::database::entities::*;
 
+#[derive(Clone)]
 pub struct DatabaseManager {
     pub connection: DatabaseConnection,
 }

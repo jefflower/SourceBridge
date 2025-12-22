@@ -1,11 +1,14 @@
 use crate::database::entities::settings;
 use crate::database::manager::DatabaseManager;
 use sea_orm::{ActiveModelTrait, EntityTrait, Set};
-use tauri::State;
 use std::collections::HashMap;
+use tauri::State;
 
 #[tauri::command]
-pub async fn get_setting(key: String, state: State<'_, DatabaseManager>) -> Result<Option<String>, String> {
+pub async fn get_setting(
+    key: String,
+    state: State<'_, DatabaseManager>,
+) -> Result<Option<String>, String> {
     let db = &state.connection;
     let setting = settings::Entity::find_by_id(&key)
         .one(db)
@@ -16,7 +19,11 @@ pub async fn get_setting(key: String, state: State<'_, DatabaseManager>) -> Resu
 }
 
 #[tauri::command]
-pub async fn set_setting(key: String, value: String, state: State<'_, DatabaseManager>) -> Result<(), String> {
+pub async fn set_setting(
+    key: String,
+    value: String,
+    state: State<'_, DatabaseManager>,
+) -> Result<(), String> {
     let db = &state.connection;
 
     // Check if exists
@@ -44,7 +51,9 @@ pub async fn set_setting(key: String, value: String, state: State<'_, DatabaseMa
 }
 
 #[tauri::command]
-pub async fn get_all_settings(state: State<'_, DatabaseManager>) -> Result<HashMap<String, String>, String> {
+pub async fn get_all_settings(
+    state: State<'_, DatabaseManager>,
+) -> Result<HashMap<String, String>, String> {
     let db = &state.connection;
     let settings = settings::Entity::find()
         .all(db)
@@ -61,7 +70,7 @@ pub async fn get_all_settings(state: State<'_, DatabaseManager>) -> Result<HashM
 pub async fn init_defaults(state: &DatabaseManager) -> Result<(), String> {
     let defaults = vec![
         ("theme", "system"),
-        ("language", "en-US"), // Will need to detect system locale ideally, but fixed default for now
+        ("language", "en"), // Standardized to 'en'
         ("git_path", "git"),
     ];
 

@@ -4,7 +4,11 @@
     <div class="flex flex-1 overflow-hidden">
       <SideBar />
       <main class="flex-1 overflow-auto p-6 pt-12">
-        <router-view />
+        <router-view v-slot="{ Component }">
+          <keep-alive>
+            <component :is="Component" />
+          </keep-alive>
+        </router-view>
       </main>
     </div>
   </div>

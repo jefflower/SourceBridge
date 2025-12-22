@@ -21,8 +21,7 @@
                 </div>
 
                 <div v-if="localTask.enabled" class="space-y-2">
-                    <label class="text-sm font-medium">{{ $t('task.form.schedule.cron') }}</label>
-                    <input v-model="localTask.cron" class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm" :placeholder="$t('task.form.schedule.placeholder')" />
+                    <CronEditor v-model="localTask.cron" />
                 </div>
             </div>
         </div>
@@ -41,8 +40,21 @@
                         </button>
                     </div>
 
-                    <!-- Dynamic Step Form -->
-                    <component :is="getStepComponent(step.action_type)" v-model="step.params" />
+                    <!-- Dynamic Step Form with Props -->
+                    <GitStepForm 
+                        v-if="step.action_type === 'git'" 
+                        v-model="step.params" 
+                        :repos="repos" 
+                    />
+                    <SyncStepForm 
+                        v-if="step.action_type === 'sync'" 
+                        v-model="step.params" 
+                        :routes="routes" 
+                    />
+                    <ScriptStepForm 
+                        v-if="step.action_type === 'script'" 
+                        v-model="step.params" 
+                    />
                 </div>
             </div>
 
@@ -64,11 +76,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
+import { invoke } from '@tauri-apps/api/core';
 import { Trash2, Terminal, GitBranch, Waypoints } from 'lucide-vue-next';
 import ScriptStepForm from './step_forms/ScriptStepForm.vue';
 import GitStepForm from './step_forms/GitStepForm.vue';
 import SyncStepForm from './step_forms/SyncStepForm.vue';
+import CronEditor from './CronEditor.vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -79,6 +93,10 @@ const props = defineProps<{
 
 const emit = defineEmits(['save', 'close']);
 
+// Data for selectors
+const repos = ref<any[]>([]);
+const routes = ref<any[]>([]);
+
 const localTask = ref<any>({
     id: '',
     name: '',
@@ -88,6 +106,67 @@ const localTask = ref<any>({
 });
 
 const steps = ref<any[]>(props.task?.steps ? [...props.task.steps] : []);
+
+// Load repos (flat list with groupPath for RepoSelector)
+const loadRepos = async () => {
+    try {
+        const tree: any[] = await invoke('list_repo_tree');
+        const flat: any[] = [];
+        const traverse = (nodes: any[], path: string[] = []) => {
+            for (const node of nodes) {
+                const currentPath = node.id === 'root_virtual' ? path : [...path, node.name];
+                if (node.repos) {
+                    node.repos.forEach((r: any) => {
+                        flat.push({
+                            ...r,
+                            groupPath: currentPath.join(' / ')
+                        });
+                    });
+                }
+                if (node.children) {
+                    traverse(node.children, currentPath);
+                }
+            }
+        };
+        traverse(tree);
+        repos.value = flat;
+    } catch (e) {
+        console.error('Failed to load repos:', e);
+    }
+};
+
+// Load routes (flat list with groupPath for RouteSelector)
+const loadRoutes = async () => {
+    try {
+        const tree: any[] = await invoke('list_route_tree');
+        const flat: any[] = [];
+        const traverse = (nodes: any[], path: string[] = []) => {
+            for (const node of nodes) {
+                const currentPath = node.id === 'route_root_virtual' ? path : [...path, node.name];
+                if (node.routes) {
+                    node.routes.forEach((r: any) => {
+                        flat.push({
+                            ...r,
+                            groupPath: currentPath.join(' / ')
+                        });
+                    });
+                }
+                if (node.children) {
+                    traverse(node.children, currentPath);
+                }
+            }
+        };
+        traverse(tree);
+        routes.value = flat;
+    } catch (e) {
+        console.error('Failed to load routes:', e);
+    }
+};
+
+onMounted(() => {
+    loadRepos();
+    loadRoutes();
+});
 
 // Parse params from JSON string if needed, mostly backend sends struct, frontend needs check
 // The DTO says params is String (JSON). We need to parse it for the form, and stringify on save.
@@ -111,19 +190,10 @@ const getStepTitle = (type: string) => {
     return t(`task.step_types.${type}`);
 };
 
-const getStepComponent = (type: string) => {
-    switch (type) {
-        case 'script': return ScriptStepForm;
-        case 'git': return GitStepForm;
-        case 'sync': return SyncStepForm;
-        default: return null;
-    }
-};
-
 const addStep = (type: string) => {
     let defaultParams = {};
     if (type === 'script') defaultParams = { script: '', continue_on_error: false };
-    if (type === 'git') defaultParams = { repo_id: null, operation: 'pull' };
+    if (type === 'git') defaultParams = { repo_id: null, operation: 'pull', force_push: false };
     if (type === 'sync') defaultParams = { route_id: null };
 
     steps.value.push({

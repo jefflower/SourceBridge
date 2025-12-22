@@ -41,9 +41,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
+import { ask } from '@tauri-apps/plugin-dialog';
+import { useI18n } from 'vue-i18n';
 import TaskCard from '@/components/task/TaskCard.vue';
 import TaskBuilder from '@/components/task/TaskBuilder.vue';
 import LogConsole from '@/components/log/LogConsole.vue';
+
+const { t } = useI18n();
 
 const tasks = ref<any[]>([]);
 const isBuilderOpen = ref(false);
@@ -62,8 +66,20 @@ onMounted(() => {
     loadTasks();
 });
 
-const openBuilder = (task: any = null) => {
-    selectedTask.value = task;
+const openBuilder = async (task: any = null) => {
+    if (task && task.id) {
+        // Editing existing task - fetch full data with steps
+        try {
+            const fullTask = await invoke('get_task_with_steps', { id: task.id });
+            selectedTask.value = fullTask;
+        } catch (e) {
+            console.error('Failed to load task details:', e);
+            selectedTask.value = task;
+        }
+    } else {
+        // Creating new task
+        selectedTask.value = null;
+    }
     isBuilderOpen.value = true;
 };
 
@@ -73,12 +89,21 @@ const closeBuilder = () => {
 };
 
 const saveTask = async (task: any) => {
+    console.log('[saveTask] Saving task:', JSON.stringify(task, null, 2));
     try {
-        await invoke('create_task', { task });
+        if (task.id) {
+            console.log('[saveTask] Updating existing task with id:', task.id);
+            // Update existing task
+            await invoke('update_task', { task });
+        } else {
+            console.log('[saveTask] Creating new task');
+            // Create new task
+            await invoke('create_task', { task });
+        }
         closeBuilder();
         await loadTasks();
     } catch (e) {
-        console.error(e);
+        console.error('[saveTask] Error:', e);
         alert('Error: ' + e);
     }
 };
@@ -97,8 +122,11 @@ const runTask = async (task: any) => {
 };
 
 const deleteTask = async (task: any) => {
-    // Ideally use 'ask' from plugin-dialog instead of confirm
-    if (confirm('Are you sure?')) { // TODO: Use i18n confirm
+    const confirmed = await ask(t('task.confirm_delete', { name: task.name }), {
+        title: t('task.delete_title'),
+        kind: 'warning'
+    });
+    if (confirmed) {
         try {
             await invoke('delete_task', { id: task.id });
             await loadTasks();

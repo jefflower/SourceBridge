@@ -43,10 +43,13 @@ pub fn run() {
             commands::route::list_route_tree,
             commands::route::get_route_details,
             commands::route::test_route_mapping,
+            commands::route::preview_glob_matches,
             commands::route::sync_route,
             commands::task::create_task,
+            commands::task::update_task,
             commands::task::run_task_now,
             commands::task::list_tasks,
+            commands::task::get_task_with_steps,
             commands::task::delete_task,
             commands::task::get_task_logs,
             commands::diff::preview_route_diff,
@@ -97,7 +100,7 @@ pub fn run() {
                 })
                 .build(app)?;
 
-            // Initialize Database
+            // Initialize Database and Scheduler
             tauri::async_runtime::block_on(async {
                 let app_data_dir = app_handle
                     .path()
@@ -111,6 +114,14 @@ pub fn run() {
                 commands::settings::init_defaults(&db_manager)
                     .await
                     .expect("failed to init settings");
+
+                // Start scheduler
+                let db_manager_arc = std::sync::Arc::new(db_manager.clone());
+                let scheduler = core::scheduler::SchedulerManager::new(db_manager_arc);
+                scheduler.start().await;
+
+                // Keep scheduler alive by managing it (optional: store in state if needed)
+                // For now, it runs as a background task
 
                 app_handle.manage(db_manager);
             });

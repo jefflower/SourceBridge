@@ -840,6 +840,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "cron"
+version = "0.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6f8c3e73077b4b4a6ab1ea5047c37c57aee77657bc8ecd6f29b0af082d0b0c07"
+dependencies = [
+ "chrono",
+ "nom",
+ "once_cell",
+]
+
+[[package]]
 name = "croner"
 version = "3.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4724,10 +4735,12 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
+ "cron",
  "env_logger",
  "git2",
  "glob",
  "log",
+ "once_cell",
  "sea-orm",
  "sea-orm-migration",
  "serde",

@@ -2,18 +2,23 @@
     <div class="space-y-4">
         <div>
             <label class="block text-sm font-medium mb-1">{{ $t('task.steps.sync.route_id') }}</label>
-            <input
-                type="number"
+            <RouteSelector
                 v-model="model.route_id"
-                class="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                :placeholder="$t('task.steps.sync.route_id')"
+                :routes="routes"
+                :placeholder="$t('task.steps.sync.select_route', '选择同步路线...')"
             />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import RouteSelector from '@/components/route/RouteSelector.vue';
+
+defineProps<{
+    routes: any[];
+}>();
+
 const model = defineModel<{
-    route_id: number | null;
+    route_id: string | null;
 }>({ required: true });
 </script>
