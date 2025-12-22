@@ -169,6 +169,8 @@
             "exec_sync": "Confirm & Sync",
             "file_list": "Changed Files",
             "loading": "Scanning files...",
+            "loading_content": "Loading content...",
+            "select_file_to_view_diff": "Select a file to view diff",
             "no_changes": "No changes detected.",
             "view": {
                 "inline": "Inline View",

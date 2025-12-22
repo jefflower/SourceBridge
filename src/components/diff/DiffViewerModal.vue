@@ -21,14 +21,14 @@
         <div class="flex-1 flex overflow-hidden">
             <!-- Sidebar -->
             <div class="w-64 flex-shrink-0">
-                <div v-if="loading" class="p-4 text-center text-muted-foreground">{{ $t('diff.loading') }}</div>
+                <div v-if="loading" class="p-4 text-center text-muted-foreground">{{ $t('route.diff.loading') }}</div>
                 <FileChangeTree v-else :changes="changes" :selectedFile="selectedFile" @select="selectFile" />
             </div>
 
             <!-- Editor -->
             <div class="flex-1 border-l relative">
                 <div v-if="loadingContent" class="absolute inset-0 flex items-center justify-center bg-background/50 z-10">
-                    Loading content...
+                    {{ $t('route.diff.loading_content') }}
                 </div>
                 <MonacoDiffEditor
                     v-if="selectedFile"
@@ -38,7 +38,7 @@
                     :renderSideBySide="sideBySide"
                 />
                 <div v-else class="h-full flex items-center justify-center text-muted-foreground">
-                    Select a file to view diff
+                    {{ $t('route.diff.select_file_to_view_diff') }}
                 </div>
             </div>
         </div>

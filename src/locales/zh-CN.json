@@ -169,6 +169,8 @@
             "exec_sync": "确认并开始同步",
             "file_list": "变更文件列表",
             "loading": "扫描文件中...",
+            "loading_content": "正在加载内容...",
+            "select_file_to_view_diff": "选择一个文件以查看差异",
             "no_changes": "未检测到变更。",
             "view": {
                 "inline": "内联视图",
