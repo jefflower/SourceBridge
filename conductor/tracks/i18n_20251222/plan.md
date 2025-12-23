@@ -14,7 +14,7 @@
 - [x] Task: 更新 `RepoSelector.vue` 和 `RouteSelector.vue` 以翻译所有按钮和标签文本。 [369a2fa]
 - [ ] Task: Conductor - User Manual Verification '核心组件国际化' (Protocol in workflow.md)
 
-## Phase 2: 对话框和表单国际化
+## Phase 2: 对话框和表单国际化 [checkpoint: 85d7cdb]
 
 此阶段专注于所有对话框、表单和动态消息的国际化。
 
