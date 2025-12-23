@@ -25,3 +25,4 @@ dist-ssr
 verification/*.png
 verification/*.png
 src-tauri/target/
+/.gemini/
