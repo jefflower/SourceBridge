@@ -120,7 +120,9 @@
             "new_subgroup": "新建子分组",
             "add_route": "在此添加路线",
             "rename": "重命名",
-            "delete": "删除"
+            "delete": "删除",
+            "delete_group": "删除分组",
+            "delete_route": "删除路线"
         },
         "form": {
             "name": {
@@ -171,6 +173,7 @@
             "add_as_rule": "添加为规则"
         },
         "no_routes": "请选择一条路线配置映射规则。",
+        "delete_confirm": "确定要删除 \"{name}\" 吗？",
         "diff": {
             "title": "同步预览",
             "exec_sync": "确认并开始同步",

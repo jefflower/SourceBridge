@@ -120,7 +120,9 @@
             "new_subgroup": "New Sub-Group",
             "add_route": "Add Route Here",
             "rename": "Rename",
-            "delete": "Delete"
+            "delete": "Delete",
+            "delete_group": "Delete Group",
+            "delete_route": "Delete Route"
         },
         "form": {
             "name": {
@@ -171,6 +173,7 @@
             "add_as_rule": "Add as Rule"
         },
         "no_routes": "Select a route to configure mappings.",
+        "delete_confirm": "Are you sure you want to delete \"{name}\"?",
         "diff": {
             "title": "Sync Preview",
             "exec_sync": "Confirm & Sync",
