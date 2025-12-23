@@ -85,7 +85,9 @@
             "switch_failed": "分支切换失败"
         },
         "tabs": {
-            "history": "提交记录"
+            "overview": "概览",
+            "history": "提交记录",
+            "settings": "设置"
         },
         "actions": {
             "open_folder": "打开目录",

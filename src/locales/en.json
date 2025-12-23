@@ -85,7 +85,9 @@
             "switch_failed": "Failed to switch branch"
         },
         "tabs": {
-            "history": "History"
+            "overview": "Overview",
+            "history": "History",
+            "settings": "Settings"
         },
         "actions": {
             "open_folder": "Open Folder",

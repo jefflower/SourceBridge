@@ -137,9 +137,9 @@ const props = defineProps<{
 const emit = defineEmits(['update', 'delete']);
 
 const tabs = [
-  { label: 'Overview', value: 'overview' },
-  { label: 'History', value: 'history' },
-  { label: 'Settings', value: 'settings' },
+  { label: t('repo.tabs.overview'), value: 'overview' },
+  { label: t('repo.tabs.history'), value: 'history' },
+  { label: t('repo.tabs.settings'), value: 'settings' },
 ];
 
 const currentTab = ref('overview');
