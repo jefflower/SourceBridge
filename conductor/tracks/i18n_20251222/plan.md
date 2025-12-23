@@ -45,5 +45,5 @@
 - [x] Task: 编写测试，确保应用中存在语言切换功能。 [00ab2b2]
 - [x] Task: 在 `Settings.vue` 视图中添加一个下拉菜单或一组按钮，允许用户在英语和简体中文之间切换。 [762ad64]
 - [x] Task: 实现语言切换逻辑，确保在切换语言后，整个应用界面的文本会立即更新。 [95d01b4]
-- [ ] Task: 全面审查应用程序，确保没有遗漏任何硬编码的文本。
+- [x] Task: 全面审查应用程序，确保没有遗漏任何硬编码的文本。 [09026a0]
 - [ ] Task: Conductor - User Manual Verification '最终审查和语言切换功能' (Protocol in workflow.md)
