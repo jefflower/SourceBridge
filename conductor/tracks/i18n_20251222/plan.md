@@ -32,7 +32,7 @@
 
 - [x] Task: 编写测试，验证 `Dashboard.vue` 中的欢迎消息和摘要文本是否可以国际化。 [b50334e]
 - [x] Task: 更新 `Dashboard.vue` 以翻译所有静态文本。 [a9d3158]
-- [ ] Task: 编写测试，验证 `Repositories.vue`, `Routes.vue`, 和 `Tasks.vue` 视图中的标题和列表头是否可以国际化。
+- [x] Task: 编写测试，验证 `Repositories.vue`, `Routes.vue`, 和 `Tasks.vue` 视图中的标题和列表头是否可以国际化。 [e8e5ce1]
 - [ ] Task: 更新 `Repositories.vue`, `Routes.vue`, 和 `Tasks.vue` 以翻译所有静态文本。
 - [ ] Task: 编写测试，验证 `RepoDetail.vue` 和 `RouteDetail.vue` 中的所有标签和数据字段是否可以国际化。
 - [ ] Task: 更新 `RepoDetail.vue` 和 `RouteDetail.vue` 以翻译所有静态文本。
