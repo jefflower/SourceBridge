@@ -104,7 +104,7 @@ const saveTask = async (task: any) => {
         await loadTasks();
     } catch (e) {
         console.error('[saveTask] Error:', e);
-        alert('Error: ' + e);
+        alert($t('common.error') + ': ' + e);
     }
 };
 
