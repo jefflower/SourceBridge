@@ -30,7 +30,7 @@
 
 此阶段专注于应用程序主要视图和详情页面的国际化。
 
-- [ ] Task: 编写测试，验证 `Dashboard.vue` 中的欢迎消息和摘要文本是否可以国际化。
+- [x] Task: 编写测试，验证 `Dashboard.vue` 中的欢迎消息和摘要文本是否可以国际化。 [b50334e]
 - [ ] Task: 更新 `Dashboard.vue` 以翻译所有静态文本。
 - [ ] Task: 编写测试，验证 `Repositories.vue`, `Routes.vue`, 和 `Tasks.vue` 视图中的标题和列表头是否可以国际化。
 - [ ] Task: 更新 `Repositories.vue`, `Routes.vue`, 和 `Tasks.vue` 以翻译所有静态文本。
