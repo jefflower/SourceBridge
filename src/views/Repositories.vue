@@ -76,6 +76,9 @@ import AddRepoDialog from '@/components/repo/AddRepoDialog.vue';
 import ScanImportDialog from '@/components/repo/ScanImportDialog.vue';
 import ContextMenu from '@/components/common/ContextMenu.vue';
 import type { MenuItem } from '@/components/common/ContextMenu.vue';
+import { useI18n } from 'vue-i18n';
+
+const { t: $t } = useI18n();
 
 const treeData = ref<any[]>([]);
 const searchQuery = ref('');
@@ -139,13 +142,13 @@ const contextMenuItems = computed<MenuItem[]>(() => {
     
     if (isGroup) {
         return [
-            { key: 'new_subgroup', label: '新建子分组', icon: NewSubgroup },
-            { key: 'add_repo', label: '在此添加仓库', icon: PackagePlus },
-            { key: 'delete', label: '删除分组', icon: Trash2, danger: true },
+            { key: 'new_subgroup', label: $t('repo.context.new_subgroup'), icon: NewSubgroup },
+            { key: 'add_repo', label: $t('repo.context.add_repo'), icon: PackagePlus },
+            { key: 'delete', label: $t('repo.context.delete_group'), icon: Trash2, danger: true },
         ];
     } else {
         return [
-            { key: 'delete', label: '删除仓库', icon: Trash2, danger: true },
+            { key: 'delete', label: $t('repo.context.delete_repo'), icon: Trash2, danger: true },
         ];
     }
 });
@@ -191,8 +194,8 @@ const handleContextMenuAction = async (action: string) => {
             dialogRef.value?.open('repo', node.id);
             break;
         case 'delete':
-            const confirmed = await ask(`确定要删除"${node.name}"吗？`, {
-                title: '删除确认',
+            const confirmed = await ask($t('repo.delete_confirm', { name: node.name }), {
+                title: $t('common.delete_confirmation_title'),
                 kind: 'warning'
             });
             
@@ -209,7 +212,7 @@ const handleContextMenuAction = async (action: string) => {
                     await loadTree();
                 } catch (e) {
                     console.error(e);
-                    alert('删除失败: ' + e);
+                    alert($t('common.delete_failed') + ': ' + e);
                 }
             }
             break;
@@ -251,7 +254,7 @@ const handleCreate = async (payload: any) => {
         await loadTree();
     } catch (e) {
         console.error('[handleCreate] Error:', e);
-        alert('Error: ' + e);
+        alert($t('common.error') + ': ' + e);
     }
 };
 
@@ -307,7 +310,7 @@ const handleMove = async (data: { draggedId: string; draggedType: string; target
         await loadTree();
     } catch (e) {
         console.error('[handleMove] Error:', e);
-        alert('移动失败: ' + e);
+        alert($t('common.move_failed') + ': ' + e);
     }
 };
 </script>

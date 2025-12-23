@@ -51,7 +51,9 @@
             "delete": "Delete",
             "new_subgroup": "New Sub-Group",
             "add_repo": "Add Repo Here",
-            "rename": "Rename"
+            "rename": "Rename",
+            "delete_group": "Delete Group",
+            "delete_repo": "Delete Repository"
         },
         "form": {
             "name": {
@@ -67,6 +69,7 @@
             }
         },
         "no_repos": "Select a repository to view details or add a new one.",
+        "delete_confirm": "Are you sure you want to delete \"{name}\"?",
         "scan": {
             "title": "Scan & Import Repositories",
             "desc": "Select a folder to recursively scan for git repositories."
@@ -96,7 +99,11 @@
         "import": "Import Selected",
         "importing": "Importing...",
         "filter": "Filter...",
-        "no_matches": "No matching results"
+        "no_matches": "No matching results",
+        "delete_confirmation_title": "Confirm Deletion",
+        "delete_failed": "Deletion failed",
+        "move_failed": "Move failed",
+        "error": "Error"
     },
     "route": {
         "group": {
