@@ -26,7 +26,7 @@
 - [x] Task: 更新 `DiffViewerModal.vue` 以翻译所有静态文本。 [0b69f96]
 - [ ] Task: Conductor - User Manual Verification '对话框和表单国际化' (Protocol in workflow.md)
 
-## Phase 3: 视图和详情页国际化
+## Phase 3: 视图和详情页国际化 [checkpoint: ccdfaf9]
 
 此阶段专注于应用程序主要视图和详情页面的国际化。
 
