@@ -12,7 +12,7 @@
 - [x] Task: 更新 `TitleBar.vue` 以使用 `vue-i18n` 翻译所有静态文本。 [9871daf]
 - [x] Task: 编写测试，验证 `RepoSelector` 和 `RouteSelector` 中的文本是否可以国际化。 [78b1851]
 - [x] Task: 更新 `RepoSelector.vue` 和 `RouteSelector.vue` 以翻译所有按钮和标签文本。 [369a2fa]
-- [ ] Task: Conductor - User Manual Verification '核心组件国际化' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification '核心组件国际化' (Protocol in workflow.md) [85d7cdb]
 
 ## Phase 2: 对话框和表单国际化 [checkpoint: 85d7cdb]
 
