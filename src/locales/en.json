@@ -23,12 +23,17 @@
         "appearance": {
             "title": "Appearance",
             "theme": "Theme",
-            "language": "Language"
+            "language": "Language",
+            "language_options": {
+                "en": "English",
+                "zh": "中文"
+            }
         },
         "env": {
             "title": "Environment",
             "git_path": "Git Executable Path",
-            "ssh_path": "SSH Key Default Path"
+            "ssh_path": "SSH Key Default Path",
+            "select_git_executable_title": "Select Git Executable"
         },
         "system": {
             "title": "System",

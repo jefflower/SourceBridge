@@ -23,12 +23,17 @@
         "appearance": {
             "title": "外观",
             "theme": "主题",
-            "language": "语言"
+            "language": "语言",
+            "language_options": {
+                "en": "English",
+                "zh": "中文"
+            }
         },
         "env": {
             "title": "环境",
             "git_path": "Git 可执行路径",
-            "ssh_path": "SSH Key 默认路径"
+            "ssh_path": "SSH Key 默认路径",
+            "select_git_executable_title": "选择 Git 可执行文件"
         },
         "system": {
             "title": "系统",

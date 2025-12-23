@@ -10,8 +10,8 @@
           <div class="grid grid-cols-4 items-center gap-4">
             <label class="text-sm font-medium">{{ $t('settings.appearance.language') }}</label>
             <select v-model="settings.language" @change="saveSetting('language', settings.language)" class="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
-              <option value="en">English</option>
-              <option value="zh">中文</option>
+              <option value="en">{{ $t('settings.appearance.language_options.en') }}</option>
+              <option value="zh">{{ $t('settings.appearance.language_options.zh') }}</option>
             </select>
           </div>
           <div class="grid grid-cols-4 items-center gap-4">
@@ -34,7 +34,7 @@
             <div class="col-span-3 flex gap-2">
               <input type="text" v-model="settings.git_path" @change="saveSetting('git_path', settings.git_path)" class="flex-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
               <button type="button" @click="browseGitPath" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-3">
-                Browse
+                {{ $t('common.browse') }}
               </button>
             </div>
           </div>
@@ -60,6 +60,8 @@ import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
 import { useI18n } from 'vue-i18n';
 import { setTheme, type Theme } from '@/composables/useTheme';
+
+const { t: $t } = useI18n();
 
 const { locale } = useI18n();
 
@@ -104,7 +106,7 @@ const browseGitPath = async () => {
     const selected = await open({
         directory: false,
         multiple: false,
-        title: 'Select Git Executable'
+        title: $t('settings.env.select_git_executable_title')
     });
     if (selected && typeof selected === 'string') {
         settings.value.git_path = selected;
