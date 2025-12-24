@@ -36,7 +36,7 @@
 - [x] Task: 更新 `Repositories.vue`, `Routes.vue`, 和 `Tasks.vue` 以翻译所有静态文本。 [267471c]
 - [x] Task: 编写测试，验证 `RepoDetail.vue` 和 `RouteDetail.vue` 中的所有标签和数据字段是否可以国际化。 [945d899]
 - [x] Task: 更新 `RepoDetail.vue` 和 `RouteDetail.vue` 以翻译所有静态文本。 [2141594]
-- [ ] Task: Conductor - User Manual Verification '视图和详情页国际化' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification '视图和详情页国际化' (Protocol in workflow.md) [864cd95]
 
 ## Phase 4: 最终审查和语言切换功能
 
