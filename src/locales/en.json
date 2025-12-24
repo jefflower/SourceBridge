@@ -91,7 +91,8 @@
         },
         "actions": {
             "open_folder": "Open Folder",
-            "open_terminal": "Open in Terminal"
+            "open_terminal": "Open in Terminal",
+            "open_ide": "Open in IDE"
         },
         "history": {
             "no_log": "No commit history found"

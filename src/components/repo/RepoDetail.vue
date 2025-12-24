@@ -7,7 +7,19 @@
         <span>{{ repo.id }}</span>
         <!-- In real app, maybe show path breadcrumbs -->
       </div>
-      <h1 class="text-2xl font-bold tracking-tight">{{ repo.name }}</h1>
+      <div class="flex justify-between items-start">
+        <h1 class="text-2xl font-bold tracking-tight">{{ repo.name }}</h1>
+         <div class="flex gap-2">
+            <button @click="onAiCommit" class="flex items-center gap-1 bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1 rounded text-sm font-medium">
+                <Sparkles class="w-4 h-4" />
+                AI Commit
+            </button>
+            <button @click="onAiPull" class="flex items-center gap-1 border bg-background hover:bg-muted px-3 py-1 rounded text-sm font-medium">
+                <ArrowDownToLine class="w-4 h-4" />
+                AI Pull
+            </button>
+        </div>
+      </div>
       <div class="flex items-center gap-4 text-sm mt-2 justify-between">
         <code class="bg-muted px-2 py-1 rounded">{{ repo.path }}</code>
 
@@ -17,6 +29,9 @@
             </button>
             <button @click="openInTerminal" class="p-1 hover:bg-muted rounded text-muted-foreground hover:text-foreground" :title="$t('repo.actions.open_terminal', 'Open Terminal')">
                 <Terminal class="w-4 h-4" />
+            </button>
+            <button @click="openInIde" class="p-1 hover:bg-muted rounded text-muted-foreground hover:text-foreground" :title="$t('repo.actions.open_ide', 'Open in IDE')">
+                <Code class="w-4 h-4" />
             </button>
         </div>
       </div>
@@ -119,14 +134,16 @@
       </div>
     </div>
   </div>
+  <CommandLogViewer ref="commandLogViewer" />
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
-import { Package, Loader2, FolderOpen, Terminal } from 'lucide-vue-next';
+import { ref, watch, onMounted } from 'vue';
+import { Package, Loader2, FolderOpen, Terminal, Code, Sparkles, ArrowDownToLine } from 'lucide-vue-next';
 import { open } from '@tauri-apps/plugin-dialog';
 import { invoke } from '@tauri-apps/api/core';
 import { useI18n } from 'vue-i18n';
+import CommandLogViewer from '@/components/common/CommandLogViewer.vue';
 
 const { t } = useI18n();
 
@@ -149,6 +166,9 @@ const currentBranch = ref('');
 const isLoadingBranches = ref(false);
 const gitLog = ref<any[]>([]);
 const isLoadingLog = ref(false);
+const preferredEditor = ref('code');
+const geminiPath = ref('gemini');
+const commandLogViewer = ref<any>(null);
 
 const loadBranches = async () => {
     if (!props.repo.path) return;
@@ -211,6 +231,57 @@ const openInTerminal = async () => {
     }
 }
 
+const openInIde = async () => {
+    if (!props.repo.path) return;
+    try {
+        await invoke('open_in_ide', { path: props.repo.path, ide_command: preferredEditor.value });
+    } catch(e) {
+        console.error(e);
+        alert(e);
+    }
+}
+
+const onAiCommit = async () => {
+    if (!props.repo.path) return;
+    const context = prompt('Optional context (e.g. "Fix login bug"):', '');
+    if (context === null) return; // Cancelled
+
+    commandLogViewer.value?.open();
+
+    // Construct args
+    // gemini /commit [context] --yes
+    const args = ['/commit'];
+    if (context) args.push(context);
+    args.push('--yes');
+
+    try {
+        await invoke('run_shell_command', {
+            command: geminiPath.value,
+            args: args,
+            cwd: props.repo.path
+        });
+    } catch(e) {
+        console.error(e);
+        alert('Failed to start gemini: ' + e);
+    }
+};
+
+const onAiPull = async () => {
+    if (!props.repo.path) return;
+    commandLogViewer.value?.open();
+
+    try {
+        await invoke('run_shell_command', {
+            command: geminiPath.value,
+            args: ['/pull'],
+            cwd: props.repo.path
+        });
+    } catch(e) {
+        console.error(e);
+        alert('Failed to start gemini: ' + e);
+    }
+};
+
 watch(() => props.repo, (newVal) => {
     localRepo.value = { ...newVal };
     if (newVal.path) {
@@ -245,4 +316,16 @@ const browsePath = async () => {
         localRepo.value.path = selected;
     }
 };
+
+onMounted(async () => {
+    try {
+        const val = await invoke('get_setting', { key: 'preferred_editor' });
+        if (val) preferredEditor.value = val as string;
+
+        const gPath = await invoke('get_setting', { key: 'gemini_path' });
+        if (gPath) geminiPath.value = gPath as string;
+    } catch (e) {
+        console.error('Failed to load settings', e);
+    }
+});
 </script>

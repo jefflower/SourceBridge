@@ -9,6 +9,11 @@ vi.mock('@tauri-apps/api/core', () => ({
   invoke: vi.fn(),
 }));
 
+// Mock tauri event API
+vi.mock('@tauri-apps/api/event', () => ({
+  listen: vi.fn(() => Promise.resolve(() => {})),
+}));
+
 // Mock tauri dialog API
 vi.mock('@tauri-apps/plugin-dialog', () => ({
   open: vi.fn(),
@@ -20,6 +25,10 @@ vi.mock('lucide-vue-next', () => ({
     Loader2: { template: '<span></span>' },
     FolderOpen: { template: '<span></span>' },
     Terminal: { template: '<span></span>' },
+    Code: { template: '<span></span>' },
+    Sparkles: { template: '<span></span>' },
+    ArrowDownToLine: { template: '<span></span>' },
+    X: { template: '<span></span>' },
 }));
 
 // Mock i18n
@@ -49,6 +58,7 @@ const i18n = createI18n({
         actions: {
           open_folder: 'Open Folder',
           open_terminal: 'Open Terminal',
+          open_ide: 'Open in IDE',
         },
         context: {
           delete: 'Delete',
@@ -108,5 +118,54 @@ describe('RepoDetail.vue', () => {
     expect(wrapper.find('.flex.border-b.px-6 button:nth-child(1)').html()).toContain('Overview');
     expect(wrapper.find('.flex.border-b.px-6 button:nth-child(2)').html()).toContain('History');
     expect(wrapper.find('.flex.border-b.px-6 button:nth-child(3)').html()).toContain('Settings');
+  });
+
+  it('should call open_in_ide when Code button is clicked', async () => {
+    const wrapper = mount(RepoDetail, {
+      props: {
+        repo: mockRepo,
+      },
+      global: {
+        plugins: [i18n],
+      },
+    });
+
+    // Set setting
+    vi.mocked(invoke).mockResolvedValue('code');
+
+    await wrapper.vm.$nextTick();
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    // Find button with Code icon. Since we mocked the icon to be a span, we can find it by looking for the button that contains it?
+    // Actually the button has a title.
+    const ideBtn = wrapper.findAll('button').find(b => b.attributes('title') === 'Open in IDE');
+    expect(ideBtn).toBeDefined();
+    await ideBtn?.trigger('click');
+    expect(invoke).toHaveBeenCalledWith('open_in_ide', { path: mockRepo.path, ide_command: 'code' });
+  });
+
+  it('should call run_shell_command when AI Commit button is clicked', async () => {
+    const wrapper = mount(RepoDetail, {
+      props: {
+        repo: mockRepo,
+      },
+      global: {
+        plugins: [i18n],
+      },
+    });
+
+    // Mock prompt
+    vi.spyOn(window, 'prompt').mockReturnValue('Fix stuff');
+
+    await wrapper.vm.$nextTick();
+    const commitBtn = wrapper.findAll('button').find(b => b.text().includes('AI Commit'));
+    expect(commitBtn).toBeDefined();
+
+    await commitBtn?.trigger('click');
+    expect(invoke).toHaveBeenCalledWith('run_shell_command', expect.objectContaining({
+        command: 'gemini',
+        args: ['/commit', 'Fix stuff', '--yes'],
+        cwd: mockRepo.path
+    }));
   });
 });

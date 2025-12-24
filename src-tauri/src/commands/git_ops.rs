@@ -119,6 +119,15 @@ pub fn switch_git_branch(path: String, branch: String) -> Result<(), String> {
 }
 
 #[tauri::command(rename_all = "snake_case")]
+pub fn open_in_ide(path: String, ide_command: String) -> Result<(), String> {
+    std::process::Command::new(&ide_command)
+        .arg(&path)
+        .spawn()
+        .map_err(|e| format!("Failed to open IDE with command '{}': {}", ide_command, e))?;
+    Ok(())
+}
+
+#[tauri::command(rename_all = "snake_case")]
 pub fn get_git_log(path: String, count: i32) -> Result<Vec<CommitInfo>, String> {
     let repo_path = Path::new(&path);
     let repo =

@@ -61,6 +61,8 @@ pub fn run() {
             commands::git_ops::get_git_log,
             commands::git_ops::open_in_folder,
             commands::git_ops::open_in_terminal,
+            commands::git_ops::open_in_ide,
+            commands::terminal::run_shell_command,
             commands::workspace::get_workspace_config,
             commands::workspace::save_workspace_config,
             commands::workspace::launch_workspace,

@@ -8,4 +8,5 @@ pub mod route;
 pub mod settings;
 pub mod status;
 pub mod task;
+pub mod terminal;
 pub mod workspace;

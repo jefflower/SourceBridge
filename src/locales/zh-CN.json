@@ -107,7 +107,8 @@
         },
         "actions": {
             "open_folder": "打开目录",
-            "open_terminal": "终端内打开"
+            "open_terminal": "终端内打开",
+            "open_ide": "在 IDE 中打开"
         },
         "history": {
             "no_log": "暂无提交记录"
