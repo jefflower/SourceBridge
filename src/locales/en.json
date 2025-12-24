@@ -244,7 +244,8 @@
         "step_types": {
             "script": "Run Script",
             "git": "Git Operation",
-            "sync": "Sync Route"
+            "sync": "Sync Route",
+            "AI_PROMPT": "AI Prompt"
         },
         "trigger": {
             "manual": "Manual Trigger"
@@ -282,6 +283,12 @@
                 "label": "Script Content",
                 "continue_on_error": "Continue on Error",
                 "placeholder": "# Write your script here..."
+            },
+            "ai": {
+                "system_prompt": "System Prompt",
+                "system_prompt_placeholder": "Optional system instructions...",
+                "user_prompt": "User Prompt",
+                "user_prompt_placeholder": "Enter your prompt here..."
             }
         }
     },
