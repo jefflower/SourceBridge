@@ -1,7 +1,11 @@
+pub mod ai;
 pub mod diff;
 pub mod git_ops;
 pub mod repo;
 pub mod repo_scan;
+pub mod report;
 pub mod route;
 pub mod settings;
+pub mod status;
 pub mod task;
+pub mod workspace;

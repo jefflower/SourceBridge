@@ -15,12 +15,19 @@ pub enum StepType {
     Script,
     Git,
     Sync,
+    AI_PROMPT,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ScriptParams {
     pub script: String,
     pub continue_on_error: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct AIParams {
+    pub system_prompt: Option<String>,
+    pub user_prompt: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -73,6 +80,7 @@ impl StepExecutor for GitExecutor {
 }
 
 use crate::core::sync::SyncEngine;
+use crate::core::ai_service::AIService;
 use crate::database::entities::repositories;
 use crate::database::manager::DatabaseManager;
 
@@ -271,6 +279,13 @@ impl TaskRunner {
                     let p: SyncParams = serde_json::from_str(&params)?;
                     match SyncEngine::execute_sync(&p.route_id, db_manager).await {
                         Ok(res) => Ok(res.logs),
+                        Err(e) => Err(e),
+                    }
+                }
+                "AI_PROMPT" => {
+                    let p: AIParams = serde_json::from_str(&params)?;
+                    match AIService::chat_completion(db_manager, p.system_prompt, p.user_prompt).await {
+                        Ok(res) => Ok(format!("[AI Response]\n{}", res)),
                         Err(e) => Err(e),
                     }
                 }

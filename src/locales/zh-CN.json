@@ -16,7 +16,9 @@
     },
     "actions": {
         "save": "保存",
-        "check_now": "立即检查"
+        "check_now": "立即检查",
+        "copy": "复制",
+        "refresh": "刷新"
     },
     "settings": {
         "title": "设置",
@@ -39,6 +41,20 @@
             "title": "系统",
             "startup": "开机自启",
             "check": "启动检查"
+        },
+        "ai": {
+            "title": "AI 配置",
+            "endpoint": "API 地址",
+            "model": "模型名称",
+            "api_key": "API Key",
+            "desc": "兼容 OpenAI 格式的接口 (例如 Ollama, LocalAI, vLLM)。地址通常为 http://localhost:11434",
+            "release_notes": {
+                "title": "生成发布说明"
+            },
+            "explain_diff": {
+                "title": "解释差异"
+            },
+            "generating": "AI 正在思考中..."
         }
     },
     "repo": {
@@ -99,6 +115,19 @@
         "dialog": {
             "select_path_title": "选择仓库路径"
         }
+    },
+    "workspace": {
+        "title": "工作区设置",
+        "source_path": "源路径 (Workspace/Source)",
+        "target_path": "目标路径 (Target)",
+        "open_command": "启动命令",
+        "placeholder": {
+            "source": "选择源工作目录...",
+            "target": "选择目标工作目录...",
+            "command": "例如: code ."
+        },
+        "command_hint": "将在路径中执行的命令。例如 'code .' 打开 VSCode。",
+        "launch": "启动工作区"
     },
     "common": {
         "root": "根目录",
@@ -185,6 +214,9 @@
             "select_source_repo": "请先选择源仓库",
             "select_target_repo": "请先选择目标仓库"
         },
+        "settings": {
+            "title": "工作区配置"
+        },
         "no_routes": "请选择一条路线配置映射规则。",
         "delete_confirm": "确定要删除 \"{name}\" 吗？",
         "diff": {
@@ -221,7 +253,15 @@
         }
     },
     "dashboard": {
-        "welcome": "欢迎使用 SourceBridge。"
+        "welcome": "欢迎使用 SourceBridge。",
+        "weekly_report": "周报",
+        "status": {
+            "title": "仓库状态",
+            "behind": "落后",
+            "modified": "未提交",
+            "diverged": "冲突",
+            "all_clean": "所有仓库状态良好"
+        }
     },
     "task": {
         "new": "新建任务",
@@ -285,6 +325,7 @@
         }
     },
     "scan": {
+        "dependency_warning_title": "发现 {count} 个依赖版本差异 (Major)",
         "click_browse": "点击浏览以选择文件夹",
         "grouping": {
             "label": "分组策略",

@@ -61,6 +61,7 @@ impl DatabaseManager {
         create_table(db, &schema, task_steps::Entity).await?;
         create_table(db, &schema, task_execution_logs::Entity).await?;
         create_table(db, &schema, settings::Entity).await?;
+        create_table(db, &schema, workspace_config::Entity).await?;
 
         Ok(())
     }
