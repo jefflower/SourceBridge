@@ -14,6 +14,8 @@ pub struct Model {
     pub auth_type: String, // 'none', 'ssh', 'token'
     pub auth_username: Option<String>,
     pub auth_secret: Option<String>,
+    #[sea_orm(default_value = false)]
+    pub pinned: bool,
     pub created_at: DateTime,
 }
 

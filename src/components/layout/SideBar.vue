@@ -17,7 +17,7 @@
 
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
-import { Home, Package, Waypoints, Zap, Settings } from 'lucide-vue-next';
+import { Home, Package, Waypoints, Zap, Settings, Bot } from 'lucide-vue-next';
 
 const route = useRoute();
 
@@ -26,6 +26,7 @@ const menuItems = [
   { path: '/repos', icon: Package, label: 'nav.repos' },
   { path: '/routes', icon: Waypoints, label: 'nav.routes' },
   { path: '/tasks', icon: Zap, label: 'nav.tasks' },
+  { path: '/ai-commands', icon: Bot, label: 'nav.ai_commands' },
   { path: '/settings', icon: Settings, label: 'nav.settings' },
 ];
 

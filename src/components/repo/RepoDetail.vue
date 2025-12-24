@@ -8,16 +8,36 @@
         <!-- In real app, maybe show path breadcrumbs -->
       </div>
       <div class="flex justify-between items-start">
-        <h1 class="text-2xl font-bold tracking-tight">{{ repo.name }}</h1>
+        <div class="flex items-center gap-3">
+            <h1 class="text-2xl font-bold tracking-tight">{{ repo.name }}</h1>
+            <button @click="togglePin" class="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground" :title="localRepo.pinned ? 'Unpin Repository' : 'Pin Repository'">
+                <PinOff v-if="localRepo.pinned" class="w-4 h-4" />
+                <Pin v-else class="w-4 h-4" />
+            </button>
+        </div>
          <div class="flex gap-2">
-            <button @click="onAiCommit" class="flex items-center gap-1 bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-1 rounded text-sm font-medium">
-                <Sparkles class="w-4 h-4" />
-                AI Commit
-            </button>
-            <button @click="onAiPull" class="flex items-center gap-1 border bg-background hover:bg-muted px-3 py-1 rounded text-sm font-medium">
-                <ArrowDownToLine class="w-4 h-4" />
-                AI Pull
-            </button>
+             <!-- AI Actions Dropdown -->
+             <DropdownMenu v-if="aiCommands.length > 0">
+                <DropdownMenuTrigger asChild>
+                    <Button variant="outline" class="gap-2">
+                        <Sparkles class="w-4 h-4" />
+                        AI Actions
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                    <DropdownMenuItem
+                        v-for="cmd in aiCommands"
+                        :key="cmd.id"
+                        @click="executeAiCommand(cmd)"
+                    >
+                        {{ cmd.name }}
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+             </DropdownMenu>
+             <div v-else class="text-xs text-muted-foreground flex items-center">
+                 No AI commands configured.
+                 <router-link to="/ai-commands" class="ml-1 underline">Configure</router-link>
+             </div>
         </div>
       </div>
       <div class="flex items-center gap-4 text-sm mt-2 justify-between">
@@ -30,9 +50,22 @@
             <button @click="openInTerminal" class="p-1 hover:bg-muted rounded text-muted-foreground hover:text-foreground" :title="$t('repo.actions.open_terminal', 'Open Terminal')">
                 <Terminal class="w-4 h-4" />
             </button>
-            <button @click="openInIde" class="p-1 hover:bg-muted rounded text-muted-foreground hover:text-foreground" :title="$t('repo.actions.open_ide', 'Open in IDE')">
-                <Code class="w-4 h-4" />
-            </button>
+            <!-- IDE Selector -->
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <button class="p-1 hover:bg-muted rounded text-muted-foreground hover:text-foreground flex items-center" :title="$t('repo.actions.open_ide', 'Open in IDE')">
+                        <Code class="w-4 h-4" />
+                    </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuItem @click="openInIde(preferredEditor)">
+                        Default ({{ preferredEditor }})
+                    </DropdownMenuItem>
+                    <DropdownMenuItem v-for="ide in installedIdes" :key="ide.command" @click="openInIde(ide.command)">
+                        {{ ide.name }}
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
         </div>
       </div>
     </div>
@@ -134,16 +167,29 @@
       </div>
     </div>
   </div>
+
+  <!-- AI Result Modal -->
+  <AIResultModal
+    v-if="showAiModal"
+    :isOpen="showAiModal"
+    :title="currentAiCommandName"
+    :content="aiResultContent"
+    @close="showAiModal = false"
+  />
+
   <CommandLogViewer ref="commandLogViewer" />
 </template>
 
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
-import { Package, Loader2, FolderOpen, Terminal, Code, Sparkles, ArrowDownToLine } from 'lucide-vue-next';
+import { Package, Loader2, FolderOpen, Terminal, Code, Sparkles, Pin, PinOff } from 'lucide-vue-next';
 import { open } from '@tauri-apps/plugin-dialog';
 import { invoke } from '@tauri-apps/api/core';
 import { useI18n } from 'vue-i18n';
 import CommandLogViewer from '@/components/common/CommandLogViewer.vue';
+import AIResultModal from '@/components/common/AIResultModal.vue';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const { t } = useI18n();
 
@@ -167,8 +213,93 @@ const isLoadingBranches = ref(false);
 const gitLog = ref<any[]>([]);
 const isLoadingLog = ref(false);
 const preferredEditor = ref('code');
-const geminiPath = ref('gemini');
+const installedIdes = ref<any[]>([]);
 const commandLogViewer = ref<any>(null);
+
+// AI Commands
+const aiCommands = ref<any[]>([]);
+const showAiModal = ref(false);
+const currentAiCommandName = ref('');
+const aiResultContent = ref('');
+
+const loadAiCommands = async () => {
+    try {
+        aiCommands.value = await invoke('get_ai_commands');
+    } catch (e) {
+        console.error('Failed to load AI commands', e);
+    }
+};
+
+const executeAiCommand = async (cmd: any) => {
+    if (!props.repo.path) return;
+
+    currentAiCommandName.value = cmd.name;
+
+    // Handle Context Gathering
+    let contextContent = "";
+    if (cmd.requires_diff) {
+        // Fetch git diff
+        // We might need a command for this
+        try {
+            // Reusing existing command if available, or run shell
+            // For now, let's just get `git diff` via shell
+             const output = await invoke('run_shell_command', {
+                command: 'git',
+                args: ['diff'],
+                cwd: props.repo.path
+            });
+            contextContent += `\n\nGit Diff:\n${output}`;
+        } catch (e) {
+            console.error("Failed to get diff", e);
+        }
+    }
+
+    if (cmd.requires_selection) {
+        // Not implemented yet - this would require file selection UI
+        contextContent += "\n\n[File Selection Context Placeholder]";
+    }
+
+    if (cmd.command_type === 'gemini') {
+        // Call AI Service
+        try {
+            // We treat the template as User Prompt if system prompt is not separated,
+            // or we can split it. For now, let's treat it as user prompt, possibly with context appended.
+            const userPrompt = `${cmd.template}\n${contextContent}`;
+            const result = await invoke('generate_ai_response', {
+                userPrompt: userPrompt,
+                systemPrompt: null
+            });
+            aiResultContent.value = result as string;
+            showAiModal.value = true;
+        } catch (e) {
+            console.error('AI execution failed', e);
+            alert('AI execution failed: ' + e);
+        }
+    } else if (cmd.command_type === 'shell') {
+        // Execute Shell Script
+        // NOTE: Executing arbitrary shell scripts from template might be risky if we don't handle args safely.
+        // Assuming template IS the command line for now.
+        // Or if it's a script content, we might need to write it to temp file.
+        // Let's assume the template is "command arg1 arg2 ..."
+
+        // However, standard use case is something like "git commit -m '...'" which is hard to template without variables.
+        // If the template is just a static command:
+        const parts = cmd.template.split(' ');
+        const command = parts[0];
+        const args = parts.slice(1);
+
+        commandLogViewer.value?.open();
+        try {
+            await invoke('run_shell_command', {
+                command: command,
+                args: args,
+                cwd: props.repo.path
+            });
+        } catch (e) {
+             console.error('Shell execution failed', e);
+        }
+    }
+};
 
 const loadBranches = async () => {
     if (!props.repo.path) return;
@@ -231,56 +362,15 @@ const openInTerminal = async () => {
     }
 }
 
-const openInIde = async () => {
+const openInIde = async (command: string) => {
     if (!props.repo.path) return;
     try {
-        await invoke('open_in_ide', { path: props.repo.path, ide_command: preferredEditor.value });
+        await invoke('open_in_ide', { path: props.repo.path, ide_command: command });
     } catch(e) {
         console.error(e);
         alert(e);
     }
 }
-
-const onAiCommit = async () => {
-    if (!props.repo.path) return;
-    const context = prompt('Optional context (e.g. "Fix login bug"):', '');
-    if (context === null) return; // Cancelled
-
-    commandLogViewer.value?.open();
-
-    // Construct args
-    // gemini /commit [context] --yes
-    const args = ['/commit'];
-    if (context) args.push(context);
-    args.push('--yes');
-
-    try {
-        await invoke('run_shell_command', {
-            command: geminiPath.value,
-            args: args,
-            cwd: props.repo.path
-        });
-    } catch(e) {
-        console.error(e);
-        alert('Failed to start gemini: ' + e);
-    }
-};
-
-const onAiPull = async () => {
-    if (!props.repo.path) return;
-    commandLogViewer.value?.open();
-
-    try {
-        await invoke('run_shell_command', {
-            command: geminiPath.value,
-            args: ['/pull'],
-            cwd: props.repo.path
-        });
-    } catch(e) {
-        console.error(e);
-        alert('Failed to start gemini: ' + e);
-    }
-};
 
 watch(() => props.repo, (newVal) => {
     localRepo.value = { ...newVal };
@@ -306,6 +396,19 @@ const deleteRepo = () => {
     emit('delete', props.repo.id);
 }
 
+const togglePin = async () => {
+    try {
+        const newPinnedState = await invoke('toggle_pin_repo', { id: props.repo.id });
+        localRepo.value.pinned = newPinnedState;
+        // Optionally emit update if parent needs to know immediately, although parent passes prop.
+        // If parent re-fetches, it might overwrite unless we emit.
+        emit('update', localRepo.value);
+    } catch (e) {
+        console.error('Failed to toggle pin', e);
+        alert('Failed to toggle pin: ' + e);
+    }
+};
+
 const browsePath = async () => {
     const selected = await open({
         directory: true,
@@ -322,8 +425,10 @@ onMounted(async () => {
         const val = await invoke('get_setting', { key: 'preferred_editor' });
         if (val) preferredEditor.value = val as string;
 
-        const gPath = await invoke('get_setting', { key: 'gemini_path' });
-        if (gPath) geminiPath.value = gPath as string;
+        loadAiCommands();
+
+        // Load installed IDEs
+        installedIdes.value = await invoke('get_available_ides');
     } catch (e) {
         console.error('Failed to load settings', e);
     }

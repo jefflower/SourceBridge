@@ -12,6 +12,7 @@ pub struct RepoNode {
     pub name: String,
     pub path: String,
     pub group_id: Option<String>,
+    pub pinned: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -119,6 +120,7 @@ pub async fn add_repository(
         remote_url: Set(url),
         group_id: Set(group_id),
         auth_type: Set("none".to_string()), // Default
+        pinned: Set(false),
         created_at: Set(chrono::Utc::now().naive_utc()),
         ..Default::default()
     };
@@ -211,6 +213,28 @@ pub async fn update_repo_group_parent(
     Ok(())
 }
 
+#[tauri::command(rename_all = "snake_case")]
+pub async fn toggle_pin_repo(
+    id: String,
+    state: State<'_, DatabaseManager>,
+) -> Result<bool, String> {
+    let db = &state.connection;
+    let existing = repositories::Entity::find_by_id(&id)
+        .one(db)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    if let Some(model) = existing {
+        let new_state = !model.pinned;
+        let mut active: repositories::ActiveModel = model.into();
+        active.pinned = Set(new_state);
+        active.update(db).await.map_err(|e| e.to_string())?;
+        Ok(new_state)
+    } else {
+        Err("Repository not found".to_string())
+    }
+}
+
 #[tauri::command]
 pub async fn list_repo_tree(state: State<'_, DatabaseManager>) -> Result<Vec<GroupNode>, String> {
     let db = &state.connection;
@@ -226,20 +250,6 @@ pub async fn list_repo_tree(state: State<'_, DatabaseManager>) -> Result<Vec<Gro
         .await
         .map_err(|e| e.to_string())?;
 
-    // Build Tree (Recursive or Iterative)
-    // Simplified approach: Return root nodes (parent_id is null) and recursively fill children
-
-    // Group by parent_id
-    // This logic is complex to implement purely in one pass without a HashMap or similar structure.
-    // For simplicity in this iteration, we will just return a flat structure or
-    // do a simple build. Let's do a recursive build function.
-
-    // 1. Organize groups by parent_id
-    // 2. Organize repos by group_id
-
-    // NOTE: This implementation assumes small number of groups/repos.
-    // Ideally we fetch everything and reconstruct in memory.
-
     Ok(build_tree(&all_groups, &all_repos, None))
 }
 
@@ -250,19 +260,8 @@ fn build_tree(
 ) -> Vec<GroupNode> {
     let mut nodes = Vec::new();
 
-    println!(
-        "[build_tree] Looking for groups with parent_id: {:?}",
-        parent_id
-    );
-
     for group in groups {
-        println!(
-            "[build_tree] Checking group '{}' (id: {}) with parent_id: {:?}",
-            group.name, group.id, group.parent_id
-        );
-
         if group.parent_id.as_ref() == parent_id {
-            println!("[build_tree] MATCHED! Adding '{}' to tree", group.name);
             let children = build_tree(groups, repos, Some(&group.id));
             let group_repos: Vec<RepoNode> = repos
                 .iter()
@@ -272,6 +271,7 @@ fn build_tree(
                     name: r.name.clone(),
                     path: r.local_path.clone(),
                     group_id: r.group_id.clone(),
+                    pinned: r.pinned,
                 })
                 .collect();
 
@@ -284,26 +284,7 @@ fn build_tree(
         }
     }
 
-    // Add root repos (repos without group) - usually this might be a "Root" pseudo-group on frontend,
-    // or we handle them separately. For `list_repo_tree` signature returning `Vec<GroupNode>`,
-    // we might need a "Uncategorized" group if there are root repos, or change return type.
-    // However, looking at the struct `GroupNode`, it represents a folder.
-    // If the frontend expects a mixed list at root, the return type should likely be `Vec<TreeNodeEnum>`.
-    // But per task spec: "provide a unified tree structure JSON".
-    // Let's assume the root list contains top-level Groups. Top-level Repos might be missed here if we strictly follow `Vec<GroupNode>`.
-
-    // FIX: Let's create a "virtual" root or change the return logic if needed.
-    // Or, better, just map root repos into a "Uncategorized" group automatically if they exist,
-    // OR allow the frontend to request root repos separately.
-
-    // Current logic only returns Groups at the top level.
-    // If parent_id is None (root call), we should perhaps return a special structure?
-    // Let's stick to `Vec<GroupNode>` for now. Repos at root might need a dummy group wrapper
-    // or we change `GroupNode` to be `TreeNode` which can be Group or Repo.
-
-    // For root level (parent_id is None), also append repositories that have no group_id
     if parent_id.is_none() {
-        // Find root repos
         let root_repos: Vec<RepoNode> = repos
             .iter()
             .filter(|r| r.group_id.is_none())
@@ -312,21 +293,14 @@ fn build_tree(
                 name: r.name.clone(),
                 path: r.local_path.clone(),
                 group_id: None,
+                pinned: r.pinned,
             })
             .collect();
 
         if !root_repos.is_empty() {
-            // Create a virtual "Root" group or Uncategorized
-            // But wait, the frontend RepoTree logic expects GroupNode to have children/repos.
-            // If we want root repos to appear at the same level as root groups, the return type `Vec<GroupNode>` is restrictive.
-            // However, we can hack it by adding a dummy group named "Uncategorized" (or similar)
-            // OR we can change the frontend to handle a mix.
-            // Given the signature `Result<Vec<GroupNode>, String>`, we must return GroupNodes.
-            // Let's add a virtual group for root repositories.
-
             nodes.push(GroupNode {
                 id: "root_virtual".to_string(),
-                name: "Uncategorized".to_string(), // TODO: i18n?
+                name: "Uncategorized".to_string(),
                 children: vec![],
                 repos: root_repos,
             });

@@ -10,6 +10,7 @@ const routes = [
   { path: '/repos', component: { template: '<div>Repos</div>' } },
   { path: '/routes', component: { template: '<div>Routes</div>' } },
   { path: '/tasks', component: { template: '<div>Tasks</div>' } },
+  { path: '/ai-commands', component: { template: '<div>AI Commands</div>' } },
   { path: '/settings', component: { template: '<div>Settings</div>' } },
 ];
 
@@ -29,6 +30,7 @@ const i18n = createI18n({
         repos: 'Repositories',
         routes: 'Routes',
         tasks: 'Tasks',
+        ai_commands: 'AI Commands',
         settings: 'Settings',
       },
     },
@@ -51,6 +53,7 @@ describe('SideBar.vue', () => {
       { path: '/repos', label: 'Repositories' },
       { path: '/routes', label: 'Routes' },
       { path: '/tasks', label: 'Tasks' },
+      { path: '/ai-commands', label: 'AI Commands' },
       { path: '/settings', label: 'Settings' },
     ];
 

@@ -1,5 +1,6 @@
 use crate::database::entities::settings;
 use crate::database::manager::DatabaseManager;
+use crate::core::system::ide::{detect_installed_ides, IdeInfo};
 use sea_orm::{ActiveModelTrait, EntityTrait, Set};
 use std::collections::HashMap;
 use tauri::State;
@@ -65,6 +66,11 @@ pub async fn get_all_settings(
         map.insert(s.key, s.value);
     }
     Ok(map)
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn get_available_ides() -> Vec<IdeInfo> {
+    detect_installed_ides()
 }
 
 pub async fn init_defaults(state: &DatabaseManager) -> Result<(), String> {

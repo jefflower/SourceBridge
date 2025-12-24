@@ -23,6 +23,7 @@ impl DatabaseManager {
 
         // Auto-migration (Code-First)
         Self::create_tables_if_not_exist(&connection).await?;
+        Self::run_manual_migrations(&connection).await?;
 
         Ok(Self { connection })
     }
@@ -62,6 +63,30 @@ impl DatabaseManager {
         create_table(db, &schema, task_execution_logs::Entity).await?;
         create_table(db, &schema, settings::Entity).await?;
         create_table(db, &schema, workspace_config::Entity).await?;
+
+        Ok(())
+    }
+
+    async fn run_manual_migrations(db: &DatabaseConnection) -> Result<(), Box<dyn std::error::Error>> {
+        // Migration 1: Add 'pinned' column to 'repositories' table
+        let backend = db.get_database_backend();
+        let sql = match backend {
+            sea_orm::DbBackend::Sqlite => "ALTER TABLE repositories ADD COLUMN pinned BOOLEAN NOT NULL DEFAULT 0",
+            _ => return Ok(()), // Only supporting SQLite for now as per tech stack
+        };
+
+        // We try to execute. If column exists, it will fail, which is fine for this simple migration strategy.
+        // For production, we should check if column exists or use schema versioning.
+        // For this local-first app, ignoring error "duplicate column name" is a quick hack.
+
+        match db.execute(Statement::from_string(backend, sql.to_string())).await {
+            Ok(_) => println!("Applied migration: Added pinned column"),
+            Err(e) => {
+                if !e.to_string().contains("duplicate column name") {
+                    eprintln!("Migration warning (might be safe if column exists): {}", e);
+                }
+            }
+        }
 
         Ok(())
     }
