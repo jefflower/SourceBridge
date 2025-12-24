@@ -60,7 +60,16 @@ pub fn run() {
             commands::git_ops::switch_git_branch,
             commands::git_ops::get_git_log,
             commands::git_ops::open_in_folder,
-            commands::git_ops::open_in_terminal
+            commands::git_ops::open_in_terminal,
+            commands::workspace::get_workspace_config,
+            commands::workspace::save_workspace_config,
+            commands::workspace::launch_workspace,
+            commands::status::get_repos_status,
+            commands::status::scan_dependencies,
+            commands::ai::generate_ai_response,
+            commands::ai::generate_release_notes,
+            commands::ai::explain_diff,
+            commands::report::generate_weekly_report
         ])
         .setup(|app| {
             let app_handle = app.handle();

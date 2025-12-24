@@ -1,8 +1,8 @@
 <template>
-  <div class="max-w-2xl">
+  <div class="max-w-2xl h-full overflow-auto p-2">
     <h1 class="text-2xl font-bold mb-6">{{ $t('settings.title') }}</h1>
 
-    <div class="space-y-8">
+    <div class="space-y-8 pb-8">
       <!-- Appearance -->
       <section class="space-y-4">
         <h2 class="text-lg font-semibold border-b pb-2">{{ $t('settings.appearance.title') }}</h2>
@@ -22,6 +22,28 @@
               <option value="dark">Dark</option>
             </select>
           </div>
+        </div>
+      </section>
+
+      <!-- AI Configuration -->
+      <section class="space-y-4">
+        <h2 class="text-lg font-semibold border-b pb-2">{{ $t('settings.ai.title') }}</h2>
+        <div class="grid gap-4">
+          <div class="grid grid-cols-4 items-center gap-4">
+            <label class="text-sm font-medium">{{ $t('settings.ai.endpoint') }}</label>
+            <input type="text" v-model="settings.ai_endpoint" @change="saveSetting('ai_endpoint', settings.ai_endpoint)" class="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" placeholder="http://localhost:11434" />
+          </div>
+          <div class="grid grid-cols-4 items-center gap-4">
+            <label class="text-sm font-medium">{{ $t('settings.ai.model') }}</label>
+            <input type="text" v-model="settings.ai_model" @change="saveSetting('ai_model', settings.ai_model)" class="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" placeholder="llama3" />
+          </div>
+          <div class="grid grid-cols-4 items-center gap-4">
+            <label class="text-sm font-medium">{{ $t('settings.ai.api_key') }}</label>
+            <input type="password" v-model="settings.ai_api_key" @change="saveSetting('ai_api_key', settings.ai_api_key)" class="col-span-3 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" placeholder="Optional" />
+          </div>
+          <p class="text-xs text-muted-foreground col-span-4 pl-1">
+             {{ $t('settings.ai.desc') }}
+          </p>
         </div>
       </section>
 
@@ -69,6 +91,9 @@ const settings = ref({
     language: 'en',
     theme: 'system' as Theme,
     git_path: 'git',
+    ai_endpoint: 'http://localhost:11434',
+    ai_model: 'llama3',
+    ai_api_key: '',
 });
 
 onMounted(async () => {
@@ -80,6 +105,11 @@ onMounted(async () => {
         }
         if (allSettings.theme) settings.value.theme = allSettings.theme as Theme;
         if (allSettings.git_path) settings.value.git_path = allSettings.git_path;
+
+        if (allSettings.ai_endpoint) settings.value.ai_endpoint = allSettings.ai_endpoint;
+        if (allSettings.ai_model) settings.value.ai_model = allSettings.ai_model;
+        if (allSettings.ai_api_key) settings.value.ai_api_key = allSettings.ai_api_key;
+
     } catch (e) {
         console.error('Failed to load settings:', e);
     }

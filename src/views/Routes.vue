@@ -42,17 +42,21 @@
 
     <!-- Main Content -->
     <div class="flex-1 overflow-hidden">
-        <div v-if="!selectedRoute" class="h-full flex flex-col items-center justify-center text-muted-foreground">
+        <div v-if="!selectedNode" class="h-full flex flex-col items-center justify-center text-muted-foreground">
             <Waypoints class="w-16 h-16 mb-4 opacity-20" />
             <p>{{ $t('route.no_routes') }}</p>
         </div>
         <RouteDetail
-            v-else
-            :route="selectedRoute"
+            v-else-if="selectedNode.type === 'route'"
+            :route="selectedNode"
             :repos="repos"
             @update="updateRoute"
             @delete="deleteRoute"
         />
+        <div v-else class="h-full flex flex-col p-6">
+            <h1 class="text-2xl font-bold tracking-tight mb-6">{{ selectedNode.name }}</h1>
+            <WorkspaceSettings :groupId="selectedNode.id" />
+        </div>
     </div>
 
     <AddRouteDialog ref="dialogRef" :repos="repos" @create="handleCreate" />
@@ -69,6 +73,7 @@ import { ask } from '@tauri-apps/plugin-dialog';
 import { FolderPlus, Plus, Search, Waypoints, Trash2, FolderPlus as NewSubgroup, Route, X } from 'lucide-vue-next';
 import RouteTree from '@/components/route/RouteTree.vue';
 import RouteDetail from '@/components/route/RouteDetail.vue';
+import WorkspaceSettings from '@/components/route/WorkspaceSettings.vue';
 import AddRouteDialog from '@/components/route/AddRouteDialog.vue';
 import ContextMenu from '@/components/common/ContextMenu.vue';
 import type { MenuItem } from '@/components/common/ContextMenu.vue';
@@ -79,7 +84,7 @@ const { t: $t } = useI18n();
 const treeData = ref<any[]>([]);
 const searchQuery = ref('');
 const debouncedSearchQuery = ref('');
-const selectedRoute = ref<any>(null);
+const selectedNode = ref<any>(null);
 const dialogRef = ref<any>(null);
 const repos = ref<any[]>([]);
 const contextMenuRef = ref<any>(null);
@@ -203,9 +208,9 @@ onMounted(() => {
 
 const selectNode = (node: any) => {
     if (node.source_id !== undefined || node.target_id !== undefined) {
-        selectedRoute.value = node;
+        selectedNode.value = { ...node, type: 'route' };
     } else {
-        selectedRoute.value = null;
+        selectedNode.value = { ...node, type: 'group' };
     }
 };
 
@@ -240,8 +245,8 @@ const handleContextMenuAction = async (action: string) => {
                     } else {
                         await invoke('delete_route', { id: node.id });
                     }
-                    if (selectedRoute.value?.id === node.id) {
-                        selectedRoute.value = null;
+                    if (selectedNode.value?.id === node.id) {
+                        selectedNode.value = null;
                     }
                     await loadTree();
                 } catch (e) {
@@ -308,7 +313,7 @@ const deleteRoute = async (id: string) => {
 
      try {
         await invoke('delete_route', { id });
-        selectedRoute.value = null;
+        selectedNode.value = null;
         await loadTree();
     } catch (e) {
         console.error(e);

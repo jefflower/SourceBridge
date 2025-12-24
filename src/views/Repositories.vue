@@ -59,6 +59,7 @@
 
     <AddRepoDialog ref="dialogRef" @create="handleCreate" />
     <ScanImportDialog ref="scanDialogRef" @import-complete="handleImportComplete" />
+    <AIResultModal ref="aiModalRef" />
     
     <!-- Context Menu -->
     <ContextMenu ref="contextMenuRef" :items="contextMenuItems" @select="handleContextMenuAction" />
@@ -69,9 +70,10 @@
 import { ref, computed, onMounted, watch } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
 import { ask } from '@tauri-apps/plugin-dialog';
-import { FolderPlus, Plus, Search, PackageOpen, Trash2, FolderPlus as NewSubgroup, PackagePlus, FolderSearch, X } from 'lucide-vue-next';
+import { FolderPlus, Plus, Search, PackageOpen, Trash2, FolderPlus as NewSubgroup, PackagePlus, FolderSearch, X, FileText } from 'lucide-vue-next';
 import RepoTree from '@/components/repo/RepoTree.vue';
 import RepoDetail from '@/components/repo/RepoDetail.vue';
+import AIResultModal from '@/components/ai/AIResultModal.vue';
 import AddRepoDialog from '@/components/repo/AddRepoDialog.vue';
 import ScanImportDialog from '@/components/repo/ScanImportDialog.vue';
 import ContextMenu from '@/components/common/ContextMenu.vue';
@@ -86,6 +88,7 @@ const debouncedSearchQuery = ref('');
 const selectedRepo = ref<any>(null);
 const dialogRef = ref<any>(null);
 const scanDialogRef = ref<any>(null);
+const aiModalRef = ref<any>(null);
 const contextMenuRef = ref<any>(null);
 const contextMenuNode = ref<any>(null);
 
@@ -148,6 +151,7 @@ const contextMenuItems = computed<MenuItem[]>(() => {
         ];
     } else {
         return [
+            { key: 'release_notes', label: $t('ai.release_notes.title'), icon: FileText },
             { key: 'delete', label: $t('repo.context.delete_repo'), icon: Trash2, danger: true },
         ];
     }
@@ -192,6 +196,17 @@ const handleContextMenuAction = async (action: string) => {
             break;
         case 'add_repo':
             dialogRef.value?.open('repo', node.id);
+            break;
+        case 'release_notes':
+            // Fetch logs for the repo.
+            try {
+               // Limit to last 20 commits for summary
+               const logs: any[] = await invoke('get_git_log', { path: node.path, count: 20 });
+               const logSummary = logs.map((l: any) => `- ${l.message} (${l.author})`).join('\n');
+               aiModalRef.value?.open('release_notes', logSummary);
+            } catch (e) {
+               alert('Failed to fetch logs: ' + e);
+            }
             break;
         case 'delete':
             const confirmed = await ask($t('repo.delete_confirm', { name: node.name }), {

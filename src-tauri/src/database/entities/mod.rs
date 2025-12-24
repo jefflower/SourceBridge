@@ -6,3 +6,4 @@ pub mod settings;
 pub mod task_execution_logs;
 pub mod task_steps;
 pub mod tasks;
+pub mod workspace_config;
