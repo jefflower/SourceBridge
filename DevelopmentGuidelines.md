@@ -1,19 +1,20 @@
 # 🧭 SourceBridge Context & Guidelines
 
-本文档按照 Gemini Conductor 规范构建，旨在成为项目的 **Single Source of Truth (SSOT)**。
+本文档严格遵循 **Gemini Conductor** 开发模式，旨在成为项目的 **Single Source of Truth (SSOT)**。
 它定义了项目的**产品上下文 (Product Context)**、**技术栈上下文 (Tech Stack Context)** 和 **工作流规范 (Workflow Guidelines)**。
 
 ---
 
 ## 🚀 1. Product Context (产品上下文)
 
-**SourceBridge** 是一个跨平台的代码仓库同步与管理工具。
-- **目标**: 帮助开发者在不同环境、不同仓库之间高效、准确地同步代码和文件。
-- **核心功能**:
-  - 仓库管理 (Repositories)
-  - 路线映射 (Route Mapping)
-  - 差异预览 (Diff Preview)
-  - 任务编排与自动同步 (Orchestration)
+**SourceBridge** 是一个跨平台的代码仓库同步与管理工具，专为项目经理设计。
+
+- **核心目标**:
+  1. **状态追踪**: 全面概览和管理所有代码仓库的同步状态。
+  2. **任务编排**: 自动化和调度复杂的代码同步工作流。
+  3. **差异分析**: 可视化代码差异，协助代码审查和冲突解决。
+  4. **国际化**: 提供无缝的多语言用户体验。
+
 - **设计理念**: 本地优先 (Local-First)，透明可控，极简配置。
 
 ---
@@ -22,97 +23,97 @@
 
 ### Core
 - **Framework**: Tauri v2
-- **Language**: Rust (Backend) / TypeScript (Frontend)
+- **Backend Language**: Rust (Performance & Safety)
+- **Frontend Language**: TypeScript (Static Typing)
 
 ### Frontend
 - **Framework**: Vue 3 (Composition API)
 - **Build Tool**: Vite
 - **Styling**: TailwindCSS
 - **UI Components**: Shadcn-vue (utils: `clsx`, `tailwind-merge`)
-- **Editor**: Monaco Editor (`vite-plugin-monaco-editor`)
-- **State/Routing**: Vue Router, Vue Use
+- **Editor**: Monaco Editor
 - **Icons**: Lucide Vue Next
 - **I18n**: Vue I18n
 
 ### Backend (Rust)
+- **ORM**: SeaORM (Async & Dynamic)
+- **Database**: SQLite (via SeaORM)
 - **Async Runtime**: Tokio
-- **Database ORM**: SeaORM (SQLite)
 - **Git Operations**: git2
-- **Scheduler**: tokio-cron-scheduler
 - **Logging**: env_logger, log
-- **Utilities**: uuid, glob, similar (Diff), walkdir, anyhow, thiserror, serde
-
-### Infrastructure
-- **Database Migration**: SeaORM Migration (`sea-orm-cli`)
-- **OS Support**: Windows, macOS, Linux
 
 ---
 
 ## 📋 3. Workflow Context (工作流上下文)
 
-我们遵循 **Context-Driven Development** (Gemini Conductor) 模式，核心流程为：
-**Spec (What) -> Plan (How) -> Execute (Do) -> Archive (History)**。
+我们严格遵循 **Context-Driven Development (CDD)** 模式。
+核心原则：**Plan is the Source of Truth**, **Test-Driven Development (TDD)**, **User Experience First**。
 
 ### 3.1 需求分析 (Specification)
-在进行复杂功能开发前，建议先编写需求文档 (Spec)。
-- **位置**: `/doc/specs/` (按需创建)
-- **内容**: 定义 "What" (要做什么) 和 "Why" (为什么做)，明确用户故事和约束条件。
-- **转化**: 根据 Spec 生成 Plan。
+- **位置**: `/doc/specs/`
+- **目的**: 明确 Definition of Done (DoD)。在编写代码前，必须清楚 "What" 和 "Why"。
 
 ### 3.2 任务规划 (Planning)
-所有开发任务必须先在 `/doc/plan/` 目录下创建计划文件 (`.md`)。
-- **文件命名**: `NNN_task_name.md` (NNN 为递增序号)
-- **内容要求**: 必须包含目标、范围、详细步骤和验收标准。
-- **单一职责**: 每次只处理一个计划文件。
+所有开发工作必须围绕**计划文件 (`plan.md`)** 进行。
+- **创建计划**: 在 `/doc/plan/` 下创建 `NNN_task_name.md` (NNN 为递增序号)。
+- **内容规范**: 必须包含 Goal (目标), Phases (阶段), Tasks (任务), Checkpoints (检查点)。
+- **单一真理**: **严禁**在于计划文件之外跟踪任务。
 
-### 3.3 任务执行 (Execution)
-1. **领取任务**: 确认 `/doc/plan/` 下的当前任务。
-2. **记录时间**: 在任务文件中记录 `开始时间`。
-3. **开发**: 编写代码，执行测试。
-4. **验证**: 确保所有验收标准通过。
+### 3.3 任务执行循环 (The Execution Loop)
+每个任务 (`[ ] Task ...`) 的执行必须遵循以下 **TDD 循环**：
 
-### 3.4 归档 (Archiving)
-任务完成后，**必须**将计划文件移动到归档目录：
-```bash
-/doc/plan/archive/YYYY-MM-DD/NNN_task_name.md
-```
-*注意：只有归档后才能提交代码 (Git Commit)。*
+1.  **Mark In Progress**: 将计划中的任务标记为进行中 `[~]`。
+2.  🔴 **Red (Write Failing Tests)**:
+    - 编写单元测试或集成测试，明确预期行为。
+    - **必须**先确认测试失败。
+3.  🟢 **Green (Implement)**:
+    - 编写最小代码量的实现，使测试通过。
+4.  🔵 **Refactor (Optional)**:
+    - 在测试保护下重构代码，优化结构。
+5.  **Verify Coverage**: 确保新代码覆盖率达标 (>80%)。
+6.  **Commit**: 提交代码 (Git Commit)。
+7.  **Update Plan**: 将任务标记为完成 `[x]`。
+
+### 3.4 阶段验证与检查点协议 (Phase Verification Protocol)
+当一个 Phase 完成时，必须执行严格的**验证协议**：
+
+1.  **自动化验证**: 运行全套测试套件 (`npm run test` / `cargo test`)。
+2.  **手动验证计划**:
+    - 基于 `Product Context` 提出详细的手动验证步骤。
+    - 明确具体的预期结果 (Expected Outcome)。
+3.  **用户确认**: 等待用户明确反馈 "Yes" 或通过。
+4.  **创建检查点 (Checkpoint)**:
+4.  **创建检查点 (Checkpoint)**:
+    - 提交 Commit: `conductor(checkpoint): Checkpoint end of Phase X`
+    - **关键**: 确保验证报告 (包含测试命令、手动步骤、用户确认) 已被记录。
+5.  **更新计划**: 在计划文件中标记 Phase 完成。
+
+### 3.5 归档 (Archiving)
+任务全部完成后：
+1. 将计划文件移动至 `/doc/plan/archive/YYYY-MM-DD/`。
+2. 确保所有相关代码已合并。
 
 ---
 
 ## 📏 4. Development Guidelines (开发规范)
 
-### 4.1 设计文档规范 (Design Guidelines)
-- **位置**: `/doc/design`
-- **规则**:
-  - 所有设计文档的历史版本均存放在此。
-  - **开发前必须查阅**该目录下的最新设计文档。
-  - 必须充分理解文档中描述的项目走向及开发目标。
+### 4.1 数据库规范
+- **Code-First**: 数据库结构严格以 Rust Entity (SeaORM) 为准。
+- **Migration**: 必须使用 `sea-orm-cli` 生成迁移文件，严禁手动修改 DB 文件。
 
-### 4.2 数据库规范 (Database Guidelines)
-- **结构规范**: 数据库结构严格以 **Rust Entity (SeaORM)** 代码为准 (Code-First)。
-- **变更规范**:
-  - **严禁**手动修改数据库文件。
-  - 必须使用 **SeaORM Migration** 进行结构变更。
-  - 步骤：
-    1. 生成迁移文件: `sea-orm-cli migrate generate MIGRATION_NAME`
-    2. 编写 `up` 和 `down` 逻辑。
-    3. 运行迁移测试。
+### 4.2 代码风格
+- **TypeScript/Vue**:
+  - 使用 Composition API (`<script setup lang="ts">`)。
+  - 组件名使用 PascalCase (如 `RepoDetail.vue`)。
+- **Rust**:
+  - 遵循 Rust 标准风格 (`cargo fmt`)。
+  - 错误处理使用 `anyhow` / `thiserror`。
+- **注释**: 关键逻辑必须包含**中文注释**，解释 "Why"。
 
-### 4.3 代码风格 (Code Style)
-- **注释**: 所有代码必须使用 **中文注释**。
-  - 解释 "Why" 而不仅仅是 "What"。
-  - 函数头注释需说明：功能、参数、返回值。
-- **命名**:
-  - Rust: `snake_case` (变量/函数), `PascalCase` (Struct/Enum)
-  - TypeScript: `camelCase` (变量/函数), `PascalCase` (组件/类)
-  - IPC Command: 必须使用 `snake_case` 参数名。
-
-### 4.4 提交前检查清单 (Pre-commit Checklist)
-* [ ] 确认已阅读 `/doc/design` 下的设计文档。
-* [ ] 确认代码变更符合设计与 Spec。
-* [ ] 确认数据库变更包含 Migration 脚本。
-* [ ] 确认已执行 `npm run build` (或 `vue-tsc`) 无类型错误。
-* [ ] 确认 Rust 代码 `cargo check` 通过。
-* [ ] 确认所有计划文件已归档。
-* [ ] 提交信息 (Commit Message) 使用清晰的中文描述。
+### 4.3 质量门禁 (Quality Gates)
+在标记任务完成前，请自我检查：
+- [ ] 测试是否全部通过？
+- [ ] 代码覆盖率是否达标？
+- [ ] 是否在 `plan.md` 中正确更新了任务状态？
+- [ ] 是否执行了阶段验证协议？
+- [ ] 移动端/响应式适配是否正常？
