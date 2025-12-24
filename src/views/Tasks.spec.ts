@@ -119,7 +119,7 @@ describe('Tasks.vue', () => {
     });
 
     // Simulate task deletion
-    await wrapper.vm.deleteTask(mockTask);
+    await (wrapper.vm as any).deleteTask(mockTask);
 
     expect(ask).toHaveBeenCalledWith('Are you sure you want to delete task "Test Task"?', {
       title: 'Confirm Delete',

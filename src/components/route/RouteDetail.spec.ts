@@ -3,7 +3,7 @@ import { mount } from '@vue/test-utils';
 import { createI18n } from 'vue-i18n';
 import RouteDetail from './RouteDetail.vue';
 import { invoke } from '@tauri-apps/api/core';
-import { ask } from '@tauri-apps/plugin-dialog';
+
 
 // Mock tauri invoke
 vi.mock('@tauri-apps/api/core', () => ({

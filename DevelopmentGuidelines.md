@@ -91,7 +91,8 @@
 ### 3.5 归档 (Archiving)
 任务全部完成后：
 1. 将计划文件移动至 `/doc/plan/archive/YYYY-MM-DD/`。
-2. 确保所有相关代码已合并。
+2. 将specs文件移动至 `/doc/specs/archive/YYYY-MM-DD/`。
+3. 确保所有相关代码已合并。
 
 ---
 

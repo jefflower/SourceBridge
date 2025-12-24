@@ -2,7 +2,6 @@ import { describe, it, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createI18n } from 'vue-i18n';
 import Repositories from './Repositories.vue';
-import { invoke } from '@tauri-apps/api/core';
 import { ask } from '@tauri-apps/plugin-dialog';
 
 // Mock tauri invoke
@@ -56,7 +55,7 @@ vi.mock('@/components/common/ContextMenu.vue', () => ({
 vi.mock('lucide-vue-next', async (importOriginal) => {
   const actual = await importOriginal();
   return {
-    ...actual,
+    ...(actual as any),
     FolderPlus: { template: '<span></span>' },
     Plus: { template: '<span></span>' },
     Search: { template: '<span></span>' },
@@ -131,7 +130,7 @@ describe('Repositories.vue', () => {
     const mockGroupNode = { id: 'group-1', name: 'My Group', children: {}, repos: [] };
     
     // Simulate context menu open
-    wrapper.vm.onContextMenu(new MouseEvent('contextmenu'), mockGroupNode);
+    (wrapper.vm as any).onContextMenu(new MouseEvent('contextmenu'), mockGroupNode);
     await wrapper.vm.$nextTick();
 
     const contextMenu = wrapper.findComponent({ name: 'ContextMenu' });
@@ -150,7 +149,7 @@ describe('Repositories.vue', () => {
     const mockRepoNode = { id: 'repo-1', name: 'My Repo' };
     
     // Simulate context menu open
-    wrapper.vm.onContextMenu(new MouseEvent('contextmenu'), mockRepoNode);
+    (wrapper.vm as any).onContextMenu(new MouseEvent('contextmenu'), mockRepoNode);
     await wrapper.vm.$nextTick();
 
     const contextMenu = wrapper.findComponent({ name: 'ContextMenu' });
@@ -166,7 +165,7 @@ describe('Repositories.vue', () => {
 
     const mockGroupNode = { id: 'group-1', name: 'My Group', children: {}, repos: [] };
     
-    wrapper.vm.onContextMenu(new MouseEvent('contextmenu'), mockGroupNode);
+    (wrapper.vm as any).onContextMenu(new MouseEvent('contextmenu'), mockGroupNode);
     await wrapper.vm.$nextTick();
 
     const contextMenu = wrapper.findComponent({ name: 'ContextMenu' });
@@ -188,7 +187,7 @@ describe('Repositories.vue', () => {
     const mockRepoNode = { id: 'repo-1', name: 'My Repo' };
     
     // Simulate context menu open
-    wrapper.vm.onContextMenu(new MouseEvent('contextmenu'), mockRepoNode);
+    (wrapper.vm as any).onContextMenu(new MouseEvent('contextmenu'), mockRepoNode);
     await wrapper.vm.$nextTick();
 
     const contextMenu = wrapper.findComponent({ name: 'ContextMenu' });

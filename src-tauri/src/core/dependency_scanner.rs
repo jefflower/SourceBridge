@@ -1,8 +1,8 @@
+use anyhow::Result;
+use semver::Version;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::Path;
-use anyhow::{Result, anyhow};
-use semver::Version;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct DependencyWarning {
@@ -38,39 +38,41 @@ impl DependencyScanner {
             return Ok(vec![]);
         }
 
-        let source_json: serde_json::Value = serde_json::from_str(&fs::read_to_string(source_pkg)?)?;
-        let target_json: serde_json::Value = serde_json::from_str(&fs::read_to_string(target_pkg)?)?;
+        let source_json: serde_json::Value =
+            serde_json::from_str(&fs::read_to_string(source_pkg)?)?;
+        let target_json: serde_json::Value =
+            serde_json::from_str(&fs::read_to_string(target_pkg)?)?;
 
         let mut warnings = Vec::new();
 
         let deps_keys = ["dependencies", "devDependencies"];
 
         for key in deps_keys {
-             if let (Some(s_deps), Some(t_deps)) = (source_json.get(key), target_json.get(key)) {
-                 if let (Some(s_obj), Some(t_obj)) = (s_deps.as_object(), t_deps.as_object()) {
-                     for (pkg, s_ver_val) in s_obj {
-                         if let Some(t_ver_val) = t_obj.get(pkg) {
-                             let s_ver = s_ver_val.as_str().unwrap_or("");
-                             let t_ver = t_ver_val.as_str().unwrap_or("");
+            if let (Some(s_deps), Some(t_deps)) = (source_json.get(key), target_json.get(key)) {
+                if let (Some(s_obj), Some(t_obj)) = (s_deps.as_object(), t_deps.as_object()) {
+                    for (pkg, s_ver_val) in s_obj {
+                        if let Some(t_ver_val) = t_obj.get(pkg) {
+                            let s_ver = s_ver_val.as_str().unwrap_or("");
+                            let t_ver = t_ver_val.as_str().unwrap_or("");
 
-                             if s_ver != t_ver {
-                                 // Analyze severity
-                                 let severity = Self::analyze_severity(s_ver, t_ver);
-                                 // Only warn on Major difference?
-                                 // Plan says: "Return SemanticWarning if Major versions differ."
-                                 if severity == "Major" {
-                                     warnings.push(DependencyWarning {
-                                         package_name: pkg.clone(),
-                                         source_version: s_ver.to_string(),
-                                         target_version: t_ver.to_string(),
-                                         severity,
-                                     });
-                                 }
-                             }
-                         }
-                     }
-                 }
-             }
+                            if s_ver != t_ver {
+                                // Analyze severity
+                                let severity = Self::analyze_severity(s_ver, t_ver);
+                                // Only warn on Major difference?
+                                // Plan says: "Return SemanticWarning if Major versions differ."
+                                if severity == "Major" {
+                                    warnings.push(DependencyWarning {
+                                        package_name: pkg.clone(),
+                                        source_version: s_ver.to_string(),
+                                        target_version: t_ver.to_string(),
+                                        severity,
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         Ok(warnings)
@@ -96,8 +98,8 @@ impl DependencyScanner {
                 } else {
                     "Unknown".to_string()
                 }
-            },
-            _ => "Unknown".to_string() // Non-semver string difference
+            }
+            _ => "Unknown".to_string(), // Non-semver string difference
         }
     }
 }

@@ -70,9 +70,9 @@
 import { ref, onMounted, computed } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
 import { Activity, RefreshCw, AlertCircle, GitMerge, ArrowDown, Edit3 } from 'lucide-vue-next';
-import { useI18n } from 'vue-i18n';
 
-const { t } = useI18n();
+
+
 
 interface RepoStatus {
     id: string;

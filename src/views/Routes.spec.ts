@@ -2,8 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createI18n } from 'vue-i18n';
 import Routes from './Routes.vue';
-import { invoke } from '@tauri-apps/api/core';
-import { ask } from '@tauri-apps/plugin-dialog';
+
 
 // Mock tauri invoke
 vi.mock('@tauri-apps/api/core', () => ({
@@ -48,7 +47,7 @@ vi.mock('@/components/common/ContextMenu.vue', () => ({
 vi.mock('lucide-vue-next', async (importOriginal) => {
   const actual = await importOriginal();
   return {
-    ...actual,
+    ...(actual as any),
     FolderPlus: { template: '<span></span>' },
     Plus: { template: '<span></span>' },
     Waypoints: { template: '<span></span>' },

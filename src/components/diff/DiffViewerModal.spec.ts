@@ -93,7 +93,7 @@ describe('DiffViewerModal.vue', () => {
     });
 
     wrapper.vm.open({ id: 'route-1', name: 'Test Route' });
-    wrapper.vm.loadingContent = true; // Manually set loading state
+    (wrapper.vm as any).loadingContent = true; // Manually set loading state
     await wrapper.vm.$nextTick();
 
     expect(wrapper.text()).toContain('Loading content...');
@@ -107,7 +107,7 @@ describe('DiffViewerModal.vue', () => {
     });
 
     wrapper.vm.open({ id: 'route-1', name: 'Test Route' });
-    wrapper.vm.selectedFile = null; // Ensure no file is selected
+    (wrapper.vm as any).selectedFile = null; // Ensure no file is selected
     await wrapper.vm.$nextTick();
 
     expect(wrapper.text()).toContain('Select a file to view diff');

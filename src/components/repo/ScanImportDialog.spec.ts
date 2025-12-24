@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createI18n } from 'vue-i18n';
 import ScanImportDialog from './ScanImportDialog.vue';
-import { open } from '@tauri-apps/plugin-dialog';
+
 
 // Mock tauri dialog API
 vi.mock('@tauri-apps/plugin-dialog', () => ({
@@ -158,7 +158,7 @@ describe('ScanImportDialog.vue', () => {
     await wrapper.vm.$nextTick();
 
     // Mock scannedRepos length for 'Found:' text
-    wrapper.vm.scannedRepos = [{ name: 'test', relative_path: '/test', remote_url: null, checked: true }];
+    (wrapper.vm as any).scannedRepos = [{ name: 'test', relative_path: '/test', remote_url: null, checked: true }];
     await wrapper.vm.$nextTick();
 
     expect(wrapper.find('label[for="selectAll"]').text()).toContain('Found: 1');
@@ -177,8 +177,8 @@ describe('ScanImportDialog.vue', () => {
     wrapper.vm.open();
     await wrapper.vm.$nextTick();
 
-    wrapper.vm.scannedRepos = [];
-    wrapper.vm.hasScanned = true; // Simulate scan finished with no results
+    (wrapper.vm as any).scannedRepos = [];
+    (wrapper.vm as any).hasScanned = true; // Simulate scan finished with no results
     await wrapper.vm.$nextTick();
 
     expect(wrapper.text()).toContain('No git repositories found.');

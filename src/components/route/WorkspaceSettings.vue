@@ -83,13 +83,13 @@ import { ref, watch, computed } from 'vue';
 import { Rocket, FolderOpen, Play } from 'lucide-vue-next';
 import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
-import { useI18n } from 'vue-i18n';
+
 
 const props = defineProps<{
   groupId: string;
 }>();
 
-const { t } = useI18n();
+
 
 interface WorkspaceConfig {
   source_path?: string;

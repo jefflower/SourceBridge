@@ -1,11 +1,11 @@
-use crate::database::manager::DatabaseManager;
-use crate::database::entities::{task_execution_logs};
 use crate::commands::git_ops::get_git_log;
-use sea_orm::{EntityTrait, QueryOrder, QueryFilter, ColumnTrait};
-use chrono::{Utc, Duration};
-use tauri::State;
-use serde::Serialize;
 use crate::database::entities::repositories;
+use crate::database::entities::task_execution_logs;
+use crate::database::manager::DatabaseManager;
+use chrono::{Duration, Utc};
+use sea_orm::{ColumnTrait, EntityTrait, QueryFilter};
+use serde::Serialize;
+use tauri::State;
 
 #[derive(Serialize)]
 pub struct WeeklyReport {
@@ -30,9 +30,7 @@ pub struct CommitSummary {
 }
 
 #[tauri::command(rename_all = "snake_case")]
-pub async fn generate_weekly_report(
-    state: State<'_, DatabaseManager>,
-) -> Result<String, String> {
+pub async fn generate_weekly_report(state: State<'_, DatabaseManager>) -> Result<String, String> {
     let db = &state.connection;
     let now = Utc::now();
     let one_week_ago = now - Duration::days(7);
@@ -46,7 +44,10 @@ pub async fn generate_weekly_report(
         .map_err(|e| e.to_string())?;
 
     let total_syncs = logs.len();
-    let success_count = logs.iter().filter(|l| l.status.as_deref() == Some("success")).count();
+    let success_count = logs
+        .iter()
+        .filter(|l| l.status.as_deref() == Some("success"))
+        .count();
     let fail_count = total_syncs - success_count;
 
     // 2. Git Commits (Sample from all repos)
@@ -60,17 +61,17 @@ pub async fn generate_weekly_report(
     for repo in repos {
         // Just get last 5 commits for report brevity
         if let Ok(commits) = get_git_log(repo.local_path, 5) {
-             for c in commits {
-                 // Parse time to check if within week?
-                 // get_git_log returns formatted time string.
-                 // For simplicity, we just include them as "Recent Activity"
-                 recent_commits.push(CommitSummary {
-                     repo_name: repo.name.clone(),
-                     message: c.message,
-                     author: c.author,
-                     time: c.time,
-                 });
-             }
+            for c in commits {
+                // Parse time to check if within week?
+                // get_git_log returns formatted time string.
+                // For simplicity, we just include them as "Recent Activity"
+                recent_commits.push(CommitSummary {
+                    repo_name: repo.name.clone(),
+                    message: c.message,
+                    author: c.author,
+                    time: c.time,
+                });
+            }
         }
     }
 
@@ -87,8 +88,12 @@ pub async fn generate_weekly_report(
     if recent_commits.is_empty() {
         md.push_str("_No commit activity detected._\n");
     } else {
-        for c in recent_commits.iter().take(20) { // Limit to 20
-            md.push_str(&format!("- **{}** ({}): {}\n", c.repo_name, c.author, c.message));
+        for c in recent_commits.iter().take(20) {
+            // Limit to 20
+            md.push_str(&format!(
+                "- **{}** ({}): {}\n",
+                c.repo_name, c.author, c.message
+            ));
         }
     }
 

@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createI18n } from 'vue-i18n';
 import AddRepoDialog from './AddRepoDialog.vue';
-import { open } from '@tauri-apps/plugin-dialog';
+
 
 // Mock tauri dialog API
 vi.mock('@tauri-apps/plugin-dialog', () => ({

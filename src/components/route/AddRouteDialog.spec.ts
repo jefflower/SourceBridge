@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createI18n } from 'vue-i18n';
 import AddRouteDialog from './AddRouteDialog.vue';
-import RepoSelector from '../repo/RepoSelector.vue'; // Mock this component
+
 
 // Mock RepoSelector since its behavior is not under test here
 vi.mock('../repo/RepoSelector.vue', () => ({
