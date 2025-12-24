@@ -72,6 +72,8 @@ pub async fn init_defaults(state: &DatabaseManager) -> Result<(), String> {
         ("theme", "system"),
         ("language", "en"), // Standardized to 'en'
         ("git_path", "git"),
+        ("preferred_editor", "code"),
+        ("gemini_path", "gemini"),
     ];
 
     let db = &state.connection;

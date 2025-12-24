@@ -55,11 +55,15 @@
                         v-if="step.action_type === 'script'" 
                         v-model="step.params" 
                     />
+                    <AIStepForm
+                        v-if="step.action_type === 'AI_PROMPT'"
+                        v-model="step.params"
+                    />
                 </div>
             </div>
 
             <!-- Add Step -->
-            <div class="mt-4 border-2 border-dashed border-muted-foreground/20 rounded-lg p-4 flex justify-center gap-4">
+            <div class="mt-4 border-2 border-dashed border-muted-foreground/20 rounded-lg p-4 flex justify-center gap-4 flex-wrap">
                 <button @click="addStep('script')" class="flex items-center gap-2 px-3 py-2 bg-background border rounded hover:bg-muted text-sm">
                     <Terminal class="w-4 h-4" /> {{ $t('task.step_types.script') }}
                 </button>
@@ -68,6 +72,9 @@
                 </button>
                 <button @click="addStep('sync')" class="flex items-center gap-2 px-3 py-2 bg-background border rounded hover:bg-muted text-sm">
                     <Waypoints class="w-4 h-4" /> {{ $t('task.step_types.sync') }}
+                </button>
+                 <button @click="addStep('AI_PROMPT')" class="flex items-center gap-2 px-3 py-2 bg-background border rounded hover:bg-muted text-sm">
+                    <Sparkles class="w-4 h-4" /> {{ $t('task.step_types.AI_PROMPT') }}
                 </button>
             </div>
         </div>
@@ -78,10 +85,11 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
-import { Trash2, Terminal, GitBranch, Waypoints } from 'lucide-vue-next';
+import { Trash2, Terminal, GitBranch, Waypoints, Sparkles } from 'lucide-vue-next';
 import ScriptStepForm from './step_forms/ScriptStepForm.vue';
 import GitStepForm from './step_forms/GitStepForm.vue';
 import SyncStepForm from './step_forms/SyncStepForm.vue';
+import AIStepForm from './step_forms/AIStepForm.vue';
 import CronEditor from './CronEditor.vue';
 import { useI18n } from 'vue-i18n';
 
@@ -195,6 +203,7 @@ const addStep = (type: string) => {
     if (type === 'script') defaultParams = { script: '', continue_on_error: false };
     if (type === 'git') defaultParams = { repo_id: null, operation: 'pull', force_push: false };
     if (type === 'sync') defaultParams = { route_id: null };
+    if (type === 'AI_PROMPT') defaultParams = { system_prompt: '', user_prompt: '' };
 
     steps.value.push({
         action_type: type,
