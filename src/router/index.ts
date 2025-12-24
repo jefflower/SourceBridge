@@ -4,6 +4,7 @@ import Dashboard from '@/views/Dashboard.vue';
 import Repositories from '@/views/Repositories.vue';
 import Routes from '@/views/Routes.vue';
 import Tasks from '@/views/Tasks.vue';
+import AICommands from '@/views/AICommands.vue';
 import Settings from '@/views/Settings.vue';
 
 const router = createRouter({
@@ -17,6 +18,7 @@ const router = createRouter({
         { path: 'repos', component: Repositories },
         { path: 'routes', component: Routes },
         { path: 'tasks', component: Tasks },
+        { path: 'ai-commands', component: AICommands },
         { path: 'settings', component: Settings },
       ],
     },
