@@ -95,6 +95,9 @@
         },
         "history": {
             "no_log": "暂无提交记录"
+        },
+        "dialog": {
+            "select_path_title": "选择仓库路径"
         }
     },
     "common": {
@@ -110,7 +113,8 @@
         "delete_confirmation_title": "删除确认",
         "delete_failed": "删除失败",
         "move_failed": "移动失败",
-        "error": "错误"
+        "error": "错误",
+        "loading": "加载中..."
     },
     "route": {
         "group": {
@@ -177,7 +181,9 @@
             "found": "找到 {count} 个文件",
             "truncated": "仅显示前200条",
             "no_matches": "无匹配文件",
-            "add_as_rule": "添加为规则"
+            "add_as_rule": "添加为规则",
+            "select_source_repo": "请先选择源仓库",
+            "select_target_repo": "请先选择目标仓库"
         },
         "no_routes": "请选择一条路线配置映射规则。",
         "delete_confirm": "确定要删除 \"{name}\" 吗？",

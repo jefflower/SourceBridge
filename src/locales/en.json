@@ -95,6 +95,9 @@
         },
         "history": {
             "no_log": "No commit history found"
+        },
+        "dialog": {
+            "select_path_title": "Select Repository Path"
         }
     },
     "common": {
@@ -110,7 +113,8 @@
         "delete_confirmation_title": "Confirm Deletion",
         "delete_failed": "Deletion failed",
         "move_failed": "Move failed",
-        "error": "Error"
+        "error": "Error",
+        "loading": "Loading..."
     },
     "route": {
         "group": {
@@ -177,7 +181,9 @@
             "found": "Found {count} files",
             "truncated": "Showing first 200 only",
             "no_matches": "No files matched",
-            "add_as_rule": "Add as Rule"
+            "add_as_rule": "Add as Rule",
+            "select_source_repo": "Please select a source repo first",
+            "select_target_repo": "Please select a target repo first"
         },
         "no_routes": "Select a route to configure mappings.",
         "delete_confirm": "Are you sure you want to delete \"{name}\"?",

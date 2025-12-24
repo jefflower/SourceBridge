@@ -95,8 +95,8 @@
             </table>
         </div>
         <div class="mt-4 flex justify-end gap-2">
-             <button @click="diffModal?.open(route)" class="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-4 py-2 rounded text-sm font-medium flex items-center gap-2">
-                <Eye class="w-4 h-4" /> Preview Diff
+             <button data-testid="preview-diff-button" @click="diffModal?.open(route)" class="bg-secondary text-secondary-foreground hover:bg-secondary/90 px-4 py-2 rounded text-sm font-medium flex items-center gap-2">
+                <Eye class="w-4 h-4" /> {{ $t('route.diff.preview') }}
             </button>
              <button @click="saveMappings" class="bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded text-sm font-medium">
                 {{ $t('actions.save') }}
@@ -127,7 +127,7 @@
                     :disabled="previewLoading || !previewPattern"
                     class="bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-1 rounded text-sm disabled:opacity-50"
                 >
-                    <span v-if="previewLoading">...</span>
+                    <span v-if="previewLoading">{{ t('common.loading') }}</span>
                     <span v-else>{{ $t('route.preview.scan') }}</span>
                 </button>
             </div>
@@ -180,6 +180,9 @@ import { Waypoints, Trash2, Eye } from 'lucide-vue-next';
 import { invoke } from '@tauri-apps/api/core';
 import RepoSelector from '../repo/RepoSelector.vue';
 import DiffViewerModal from '../diff/DiffViewerModal.vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps<{
   route: any;
@@ -263,8 +266,8 @@ const runPreview = async () => {
     
     if (!repoId) {
         previewError.value = previewRepoType.value === 'source' 
-            ? '请先选择源仓库' 
-            : '请先选择目标仓库';
+            ? t('route.preview.select_source_repo')
+            : t('route.preview.select_target_repo');
         previewResult.value = null;
         return;
     }

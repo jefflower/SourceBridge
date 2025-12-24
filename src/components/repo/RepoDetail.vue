@@ -103,7 +103,7 @@
                 <div class="flex gap-2">
                     <input v-model="localRepo.path" class="flex-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
                     <button type="button" @click="browsePath" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-3">
-                        Browse
+                        {{ $t('common.browse') }}
                     </button>
                 </div>
             </div>
@@ -239,7 +239,7 @@ const browsePath = async () => {
     const selected = await open({
         directory: true,
         multiple: false,
-        title: 'Select Repository Path'
+        title: t('repo.dialog.select_path_title'),
     });
     if (selected && typeof selected === 'string') {
         localRepo.value.path = selected;
