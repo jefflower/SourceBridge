@@ -8,6 +8,25 @@
         </button>
     </div>
 
+    <!-- Pinned Repositories -->
+    <div v-if="pinnedRepos.length > 0" class="mb-8">
+        <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+            <Pin class="w-4 h-4" />
+            Pinned Repositories
+        </h2>
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card v-for="repo in pinnedRepos" :key="repo.id" class="cursor-pointer hover:bg-accent/50 transition-colors" @click="goToRepo(repo)">
+                <CardContent class="p-4 flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-medium truncate" :title="repo.name">{{ repo.name }}</span>
+                        <Package class="w-4 h-4 text-muted-foreground" />
+                    </div>
+                    <code class="text-xs text-muted-foreground bg-muted p-1 rounded truncate">{{ repo.path }}</code>
+                </CardContent>
+            </Card>
+        </div>
+    </div>
+
     <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
        <!-- Status Widget -->
        <StatusWidget class="row-span-2" />
@@ -45,53 +64,94 @@
        </div>
     </div>
 
-    <div v-if="groups.length === 0" class="text-center py-12 text-muted-foreground">
-        {{ $t('dashboard.welcome') }}
+    <div v-if="groups.length === 0 && pinnedRepos.length === 0" class="text-center py-12 text-muted-foreground">
+        <p>{{ $t('dashboard.welcome', 'Welcome to SourceBridge.') }}</p>
     </div>
-    <AIResultModal ref="reportModal" />
+    <AIResultModal
+        :isOpen="showReportModal"
+        title="Weekly Report"
+        :content="reportContent"
+        @close="showReportModal = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { invoke } from '@tauri-apps/api/core';
-import { Folder, Waypoints, Rocket, FileText } from 'lucide-vue-next';
+import { useRouter } from 'vue-router';
+import { Folder, Waypoints, Rocket, FileText, Pin, Package } from 'lucide-vue-next';
 import StatusWidget from '@/components/dashboard/StatusWidget.vue';
-import AIResultModal from '@/components/ai/AIResultModal.vue';
+import AIResultModal from '@/components/common/AIResultModal.vue';
+import { Card, CardContent } from '@/components/ui/card';
 
+const router = useRouter();
 const groups = ref<any[]>([]);
-const reportModal = ref<any>(null);
+const pinnedRepos = ref<any[]>([]);
+const showReportModal = ref(false);
+const reportContent = ref('');
 
 const loadGroups = async () => {
     try {
         const tree: any[] = await invoke('list_route_tree');
-        // Filter out root virtual if empty or just not a real group
-        // We only want top level groups for now? Or flatten?
-        // Let's show top level groups.
         groups.value = tree.filter(n => n.id !== 'route_root_virtual');
     } catch (e) {
         console.error(e);
     }
 };
 
+const loadPinnedRepos = async () => {
+    try {
+        const tree: any[] = await invoke('list_repo_tree');
+        const pinned: any[] = [];
+
+        const traverse = (nodes: any[]) => {
+            for (const node of nodes) {
+                if (node.repos) {
+                    for (const repo of node.repos) {
+                        if (repo.pinned) {
+                            pinned.push(repo);
+                        }
+                    }
+                }
+                if (node.children) {
+                    traverse(node.children);
+                }
+            }
+        };
+
+        traverse(tree);
+        pinnedRepos.value = pinned;
+    } catch (e) {
+        console.error('Failed to load pinned repos', e);
+    }
+}
+
 const launchWorkspace = async (groupId: string) => {
     try {
         await invoke('launch_workspace', { groupId });
     } catch (e) {
         console.error(e);
-        // If config missing, maybe redirect to settings or show toast?
-        // For now alert
-        // alert('Failed to launch: ' + e);
-        // Better: silently fail or log, as per requirement "One-Click".
-        // If no config, it just does nothing or errors.
     }
 };
 
-const generateReport = () => {
-    reportModal.value?.open('weekly_report', '');
+const generateReport = async () => {
+    try {
+        const res = await invoke('generate_weekly_report');
+        reportContent.value = res as string;
+        showReportModal.value = true;
+    } catch(e) {
+        console.error(e);
+        alert(e);
+    }
+};
+
+const goToRepo = (repo: any) => {
+    router.push({ path: '/repos', query: { select: repo.id } });
 };
 
 onMounted(() => {
     loadGroups();
+    loadPinnedRepos();
 });
 </script>
