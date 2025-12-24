@@ -38,7 +38,7 @@
 - [x] Task: 更新 `RepoDetail.vue` 和 `RouteDetail.vue` 以翻译所有静态文本。 [2141594]
 - [x] Task: Conductor - User Manual Verification '视图和详情页国际化' (Protocol in workflow.md) [864cd95]
 
-## Phase 4: 最终审查和语言切换功能
+## Phase 4: 最终审查和语言切换功能 [checkpoint: 63b5654]
 
 此阶段将进行全面审查，并实现语言切换功能。
 
@@ -46,4 +46,4 @@
 - [x] Task: 在 `Settings.vue` 视图中添加一个下拉菜单或一组按钮，允许用户在英语和简体中文之间切换。 [762ad64]
 - [x] Task: 实现语言切换逻辑，确保在切换语言后，整个应用界面的文本会立即更新。 [95d01b4]
 - [x] Task: 全面审查应用程序，确保没有遗漏任何硬编码的文本。 [09026a0]
-- [ ] Task: Conductor - User Manual Verification '最终审查和语言切换功能' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification '最终审查和语言切换功能' (Protocol in workflow.md)
